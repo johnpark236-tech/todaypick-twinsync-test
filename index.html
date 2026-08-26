@@ -1,1 +1,3868 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TodayPick UI Studio v2.2.1 — Real Google Drive Asset Mode</title>
+<style>
+:root {
+  --bg-darkest: #090a10;
+  --bg-main: #0e0f18;
+  --bg-panel: #131420;
+  --bg-header: #0a0b12;
+  --bg-card: #1a1b2c;
+  --bg-card-hover: #222338;
+  --bg-card-subtle: rgba(255,255,255,0.03);
+  --border-color: rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-active: #8b7cf6;
+  --text-main: #f1f1f5;
+  --text-muted: #9493a3;
+  --text-dim: #5c5b6b;
+  --accent-purple: #8b7cf6;
+  --accent-purple-light: #c4b5fd;
+  --accent-purple-bg: rgba(139,124,246,0.15);
+  --accent-green: #4ecf96;
+  --accent-green-bg: rgba(78,207,150,0.15);
+  --accent-amber: #f59e0b;
+  --accent-amber-bg: rgba(245,158,11,0.15);
+  --accent-red: #ef4444;
+  --accent-red-bg: rgba(239,68,68,0.15);
+  --accent-blue: #3b82f6;
+  --accent-blue-bg: rgba(59,130,246,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ── 탑 스크린 네비게이터 ── */
+.top-screen-nav {
+  height: 44px;
+  background: var(--bg-darkest);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.top-screen-nav::-webkit-scrollbar { display: none; }
+.nav-brand-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-purple);
+  background: var(--accent-purple-bg);
+  border: 1px solid rgba(139,124,246,0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.screen-tab {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid transparent;
+}
+.screen-tab:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.screen-tab.active {
+  background: var(--accent-purple);
+  color: #fff;
+  font-weight: 700;
+  border-color: var(--accent-purple-light);
+  box-shadow: 0 2px 8px rgba(139,124,246,0.4);
+}
+.screen-tab-tag {
+  font-size: 8.5px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.15);
+  color: var(--text-dim);
+}
+.screen-tab.active .screen-tab-tag {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+/* ── 3-컬럼 스튜디오 레이아웃 ── */
+.studio-main {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 44px);
+  overflow: hidden;
+}
+
+/* ── 좌측 컨트롤 패널 ── */
+.panel-controls {
+  width: 390px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+.panel-controls-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-header);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-title { font-size: 14px; font-weight: 800; color: #fff; }
+.panel-version-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--accent-purple-bg);
+  color: var(--accent-purple-light);
+  border: 1px solid rgba(139,124,246,0.3);
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+/* 섹션 아코디언 */
+.section {
+  border-bottom: 1px solid var(--border-color);
+}
+.section-header {
+  padding: 11px 16px;
+  background: var(--bg-card-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.section-header:hover { background: rgba(255,255,255,0.05); }
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #b0afc2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sec-reset-btn {
+  font-size: 9.5px;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid transparent;
+  padding: 1px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.sec-reset-btn:hover {
+  color: var(--accent-amber);
+  border-color: rgba(245,158,11,0.3);
+  background: var(--accent-amber-bg);
+}
+.section-toggle-icon {
+  font-size: 10px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+.section.collapsed .section-body { display: none; }
+.section.collapsed .section-toggle-icon { transform: rotate(-90deg); }
+
+.section-body {
+  padding: 14px 16px;
+}
+
+/* 컨트롤 행 */
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.control-row:last-child { margin-bottom: 0; }
+.control-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  flex: 0 0 115px;
+}
+.control-inputs {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.num-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.num-input {
+  width: 56px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--accent-purple-light);
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 6px;
+  text-align: right;
+  outline: none;
+  transition: all 0.15s;
+}
+.num-input:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 2px rgba(139,124,246,0.2);
+}
+.num-unit {
+  position: absolute;
+  right: 4px;
+  font-size: 9px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+.norm-percent {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: 'SF Mono', Consolas, monospace;
+  min-width: 42px;
+  text-align: right;
+}
+
+input[type=range] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-purple);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  transition: transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+select {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 11px;
+  outline: none;
+  flex: 1;
+  cursor: pointer;
+}
+select:focus { border-color: var(--accent-purple); }
+
+input[type=color] {
+  width: 32px;
+  height: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.checkbox-wrap input[type=checkbox] {
+  accent-color: var(--accent-purple);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.btn-group {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.btn-sm {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 11px;
+  padding: 7px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+  text-align: center;
+  font-weight: 500;
+}
+.btn-sm:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+.btn-purple {
+  background: var(--accent-purple-bg);
+  border-color: rgba(139,124,246,0.35);
+  color: var(--accent-purple-light);
+}
+.btn-purple:hover {
+  background: rgba(139,124,246,0.28);
+  border-color: var(--accent-purple);
+}
+.btn-green {
+  background: var(--accent-green-bg);
+  border-color: rgba(78,207,150,0.35);
+  color: var(--accent-green);
+}
+.btn-green:hover {
+  background: rgba(78,207,150,0.25);
+  border-color: var(--accent-green);
+}
+
+/* 프리셋 바 */
+.preset-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.preset-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+.preset-btn:hover { background: var(--bg-card-hover); }
+.preset-btn.active {
+  background: var(--accent-purple-bg);
+  border-color: var(--accent-purple);
+  color: #fff;
+}
+.preset-btn small {
+  display: block;
+  font-size: 9.5px;
+  color: var(--text-dim);
+  font-weight: normal;
+  margin-top: 2px;
+}
+.preset-btn.active small { color: var(--accent-purple-light); }
+
+/* 승인 카드 */
+.approval-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.approval-card.approved {
+  border-color: rgba(78,207,150,0.5);
+  background: rgba(78,207,150,0.06);
+}
+.approval-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.approval-status-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  font-family: 'SF Mono', Consolas, monospace;
+}
+.approval-status-badge.approved {
+  background: var(--accent-green-bg);
+  color: var(--accent-green);
+  border: 1px solid rgba(78,207,150,0.3);
+}
+.approval-status-badge.draft {
+  background: var(--accent-amber-bg);
+  color: var(--accent-amber);
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+/* 인스펙터 카드 */
+.inspector-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(139,124,246,0.3);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.inspector-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-purple);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.inspector-props {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  font-size: 10px;
+}
+.inspector-prop {
+  background: rgba(0,0,0,0.3);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.inspector-prop-label { color: var(--text-dim); }
+.inspector-prop-val { color: var(--text-main); font-weight: 600; font-family: 'SF Mono', monospace; }
+
+/* 룰 검증 알림 */
+.validation-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.warning-pill {
+  font-size: 10.5px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.35;
+}
+.warning-pill.warn {
+  background: var(--accent-amber-bg);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: #fbbf24;
+}
+.warning-pill.pass {
+  background: var(--accent-green-bg);
+  border: 1px solid rgba(78,207,150,0.3);
+  color: var(--accent-green);
+}
+.quality-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.quality-badge.good { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(78,207,150,0.3); }
+.quality-badge.risk { background: var(--accent-amber-bg); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.3); }
+
+/* ── 2. 중앙 폰 프리뷰 ── */
+.panel-preview {
+  flex: 1;
+  background: #0d0e17;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: auto;
+  padding: 18px;
+  position: relative;
+}
+
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 8px;
+  gap: 12px;
+}
+.preview-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.device-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.device-select-wrap select {
+  padding: 3px 6px;
+  font-size: 11px;
+  background: var(--bg-panel);
+}
+
+.phone-viewport-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+
+.phone-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.phone-title-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* 폰 섀시 */
+.phone-chassis {
+  width: 379px;
+  height: 877px;
+  max-height: 82vh;
+  aspect-ratio: 379 / 877;
+  background: #1a0a2e;
+  border-radius: 42px;
+  border: 4px solid #2d2e40;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  transition: aspect-ratio 0.2s;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 26px;
+  background: #000;
+  border-radius: 14px;
+  z-index: 50;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+.notch-cam {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #19192c;
+}
+.phone-home-indicator {
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 2px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* 앱 스크린 내부 */
+.app-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fafaf8;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 헤더 & 인사말 */
+.app-header-area {
+  padding-top: 44px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background: #fafaf8;
+  z-index: 10;
+  cursor: pointer;
+}
+.app-greeting {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+/* 모드 탭 */
+.app-tabs-container {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  height: 36px;
+  margin-bottom: 6px;
+}
+.tab-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: grab;
+  position: absolute;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.15s, outline 0.15s;
+}
+.tab-btn:active { cursor: grabbing; }
+.tab-btn.char-tab {
+  background: #7c5cbf;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(124,92,191,0.3);
+}
+.tab-btn.price-tab {
+  background: #e8e6f0;
+  color: #666;
+}
+
+/* 캐릭터 모드 버튼 & 드롭다운 */
+.char-mode-floating-btn {
+  position: absolute;
+  left: 16px;
+  top: 140px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c5cbf;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  cursor: grab;
+  touch-action: none;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.char-mode-floating-btn:active { cursor: grabbing; }
+
+/* 메인 룩 영역 */
+.main-stage-area {
+  flex: 1;
+  background: #f0ede8;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+.main-outfit-img-wrap {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+}
+.main-outfit-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* 가격 보기 오버레이 카드 (PRICE_UI 전용) */
+.price-details-overlay {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  right: 14px;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 35;
+  backdrop-filter: blur(8px);
+}
+.price-overlay-title { font-size: 13px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+.price-item-row { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; }
+.price-item-name { color: #333; font-weight: 500; }
+.price-item-val { color: #7c5cbf; font-weight: 700; font-family: 'SF Mono', monospace; }
+.price-total-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: #1a1a2e; border-top: 1px dashed #e2e8f0; padding-top: 6px; margin-top: 6px; }
+.buy-now-btn { width: 100%; margin-top: 8px; background: #7c5cbf; color: #fff; border: none; padding: 8px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; }
+
+/* 우측 액션 버튼들 */
+.side-buttons-group {
+  position: absolute;
+  right: 12px;
+  top: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 25;
+  cursor: grab;
+  touch-action: none;
+}
+.side-buttons-group:active { cursor: grabbing; }
+.side-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  user-select: none;
+}
+.side-btn.save { background: rgba(0,0,0,0.65); color: #fff; font-size: 12px; font-weight: 700; }
+.side-btn.settings { background: #7c5cbf; color: #fff; }
+.side-btn.play { background: #7c5cbf; color: #fff; }
+
+/* 추천 버튼 */
+.recommend-floating-btn {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #7c5cbf;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(124,92,191,0.45);
+  cursor: grab;
+  touch-action: none;
+  z-index: 25;
+}
+.recommend-floating-btn:active { cursor: grabbing; }
+
+/* 썸네일 스트립 */
+.thumbnail-strip-wrapper {
+  background: #fff;
+  border-top: 1px solid #e8e6e0;
+  position: relative;
+  z-index: 20;
+  cursor: grab;
+  touch-action: none;
+}
+.thumbnail-strip-wrapper:active { cursor: grabbing; }
+
+.thumbnail-scroll-area {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0;
+  scroll-behavior: smooth;
+}
+.thumbnail-scroll-area::-webkit-scrollbar { display: none; }
+
+.thumb-item {
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #f5f5f5;
+}
+.thumb-item:hover {
+  transform: translateY(-2px);
+}
+.thumb-item.selected-thumb {
+  box-shadow: 0 4px 14px rgba(125,92,192,0.4);
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  pointer-events: none;
+}
+
+/* 하단 네비게이션 */
+.app-nav-bar {
+  display: flex;
+  border-top: 1px solid #e8e6e0;
+  background: #fff;
+  padding: 10px 0 24px;
+  z-index: 20;
+  cursor: pointer;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+}
+.nav-item.active { color: #7c5cbf; font-weight: 700; }
+.nav-indicator-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #7c5cbf;
+}
+
+/* 선택 하이라이트 */
+.selected-element {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 1px !important;
+}
+
+/* ── 3. 우측 출력 & 코드 패널 ── */
+.panel-output {
+  width: 430px;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border-color);
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+
+.output-tabs {
+  display: flex;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.output-tab {
+  flex: 1;
+  padding: 12px 6px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.output-tab.active {
+  color: #fff;
+  border-bottom-color: var(--accent-purple);
+  background: var(--accent-purple-bg);
+}
+
+.output-content {
+  padding: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.code-viewer-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 260px;
+}
+.code-box {
+  background: #08080e;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+  font-size: 11px;
+  color: var(--accent-green);
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 280px;
+  max-height: 520px;
+}
+
+.copy-action-btn {
+  background: var(--accent-purple-bg);
+  border: 1px solid rgba(139,124,246,0.35);
+  color: var(--accent-purple-light);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 9px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.copy-action-btn:hover {
+  background: rgba(139,124,246,0.28);
+  border-color: var(--accent-purple);
+}
+.copy-action-btn.copied {
+  background: var(--accent-green-bg);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+/* Diff 요약 카드 */
+.diff-summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 11px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.diff-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.diff-item:last-child { border-bottom: none; }
+.diff-label { color: var(--text-muted); }
+.diff-val-before { color: #f87171; text-decoration: line-through; margin-right: 6px; }
+.diff-val-after { color: var(--accent-green); font-weight: 700; }
+
+/* 미디어 쿼리 */
+@media (max-width: 1200px) {
+  body { overflow-y: auto; }
+  .studio-main { flex-direction: column; height: auto; }
+  .panel-controls, .panel-output { width: 100%; max-height: none; }
+  .panel-preview { min-height: 860px; }
+}
+
+
+/* ── Mobile App Preview Mode ──────────────────────────────
+   On phones, show only the actual TodayPick phone preview.
+   Desktop/tablet Studio layout remains unchanged. */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    overflow: hidden !important;
+    background: #0d0e17;
+    overscroll-behavior: none;
+  }
+
+  /* Hide Studio-only chrome on smartphones */
+  .top-screen-nav,
+  .panel-controls,
+  .panel-output,
+  .preview-toolbar,
+  .phone-title-badge,
+  #beforePhoneWrapper {
+    display: none !important;
+  }
+
+  .studio-main {
+    display: block !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .panel-preview {
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #0d0e17;
+  }
+
+  .phone-viewport-container {
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    gap: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+
+  .phone-wrapper {
+    width: 100vw !important;
+    height: 100dvh !important;
+    gap: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Fit the 379×877 reference phone inside any mobile viewport
+     without cropping or stretching. */
+  .phone-chassis {
+    width: min(100vw, calc(100dvh * 379 / 877)) !important;
+    height: min(100dvh, calc(100vw * 877 / 379)) !important;
+    max-height: none !important;
+    max-width: none !important;
+    aspect-ratio: 379 / 877 !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+
+  /* The phone preview itself is the mobile experience. */
+  .app-screen {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── 상단 스크린 선택 네비게이터 (8종 화면 전체 지원) ── -->
+<div class="top-screen-nav">
+  <div class="nav-brand-tag">TODAYPICK UI STUDIO</div>
+  <div class="screen-tab active" id="tab_HOME_UI" onclick="switchScreen('HOME_UI')">
+    <span>HOME_UI</span>
+    <span class="screen-tab-tag" id="tag_HOME_UI">ACTIVE</span>
+  </div>
+  <div class="screen-tab" id="tab_OUTFIT_UI" onclick="switchScreen('OUTFIT_UI')">
+    <span>OUTFIT_UI</span>
+    <span class="screen-tab-tag">탐색</span>
+  </div>
+  <div class="screen-tab" id="tab_PRICE_UI" onclick="switchScreen('PRICE_UI')">
+    <span>PRICE_UI</span>
+    <span class="screen-tab-tag">가격보기</span>
+  </div>
+  <div class="screen-tab" id="tab_MY_COORDI_UI" onclick="switchScreen('MY_COORDI_UI')">
+    <span>MY_COORDI_UI</span>
+    <span class="screen-tab-tag">내코디</span>
+  </div>
+  <div class="screen-tab" id="tab_RECOMMEND_UI" onclick="switchScreen('RECOMMEND_UI')">
+    <span>RECOMMEND_UI</span>
+    <span class="screen-tab-tag">추천</span>
+  </div>
+  <div class="screen-tab" id="tab_COUNTRY_UI" onclick="switchScreen('COUNTRY_UI')">
+    <span>COUNTRY_UI</span>
+    <span class="screen-tab-tag">국가별</span>
+  </div>
+  <div class="screen-tab" id="tab_FOOD_UI" onclick="switchScreen('FOOD_UI')">
+    <span>FOOD_UI</span>
+    <span class="screen-tab-tag">푸드</span>
+  </div>
+  <div class="screen-tab" id="tab_ACTIVITY_UI" onclick="switchScreen('ACTIVITY_UI')">
+    <span>ACTIVITY_UI</span>
+    <span class="screen-tab-tag">액티비티</span>
+  </div>
+</div>
+
+<div class="studio-main">
+
+  <!-- ── 1. 좌측 컨트롤 패널 ── -->
+  <div class="panel-controls">
+    <div class="panel-controls-header">
+      <div class="panel-title" id="screenTitleHeader">HOME_UI Designer</div>
+      <div class="panel-version-tag" id="specVersionBadge">HOME_UI_V002_DRAFT (v2.2.1)</div>
+    </div>
+
+    <!-- 프리셋 및 승인 워크플로우 -->
+    <div class="section">
+      <div class="section-body">
+        <div style="font-size:11px;font-weight:700;color:#b0afc2;text-transform:uppercase;margin-bottom:8px;">
+          ⚡ 빠른 레이아웃 프리셋
+        </div>
+        <div class="preset-bar">
+          <button class="preset-btn" id="presetCurrent" onclick="applyPreset('CURRENT_APP')">
+            CURRENT_APP
+            <small>72×90px · Cover (크롭)</small>
+          </button>
+          <button class="preset-btn active" id="presetFullbody" onclick="applyPreset('FULL_BODY_THUMBNAILS')">
+            FULL_BODY
+            <small>74×146px · Contain (권장)</small>
+          </button>
+          <button class="preset-btn" id="presetCompact" onclick="applyPreset('COMPACT')">
+            COMPACT
+            <small>60×100px · Contain</small>
+          </button>
+          <button class="preset-btn" id="presetLarge" onclick="applyPreset('LARGE_THUMBNAILS')">
+            LARGE
+            <small>84×160px · Contain</small>
+          </button>
+        </div>
+
+        <!-- 승인 카드 -->
+        <div class="approval-card" id="approvalCard">
+          <div class="approval-header">
+            <span style="font-size:12px;font-weight:700;">UI 스펙 승인 워크플로우</span>
+            <span class="approval-status-badge draft" id="approvalBadge">DRAFT (미승인)</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);" id="approvalInfo">
+            실제 이미지 갤러리 및 컴포넌트 레이아웃을 승인하면 버전이 동결됩니다.
+          </div>
+          <div class="btn-group">
+            <button class="btn-sm btn-green" id="approveBtn" onclick="approveCurrentSpec()">✓ UI 레이아웃 승인</button>
+            <button class="btn-sm" onclick="resetAll()">↺ 전체 기본값 리셋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 선택 요소 인스펙터 -->
+    <div class="section" id="inspectorSection">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">🎯 선택 컴포넌트 인스펙터</div>
+        <span class="section-toggle-icon">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="inspector-card">
+          <div class="inspector-title">
+            <span id="inspectName">Main Image Area</span>
+            <span style="font-size:9px;color:var(--accent-purple);" id="inspectAnchor">BOTTOM_CENTER</span>
+          </div>
+          <div class="inspector-props" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">IMAGE SOURCE MODE</div>
+              <div class="inspector-prop-val" id="inspectSourceMode" style="color:var(--accent-purple-light);">DRIVE</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Selected Asset</div>
+              <div class="inspector-prop-val" id="inspectAssetId">outfit_01</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Drive File ID</div>
+              <div class="inspector-prop-val" id="inspectDriveFileId" style="font-size:9px;word-break:break-all;">16KCddyBuy5bf...</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Resolved Source</div>
+              <div class="inspector-prop-val" id="inspectSource" style="font-size:9px;">Google Drive</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Load State</div>
+              <div class="inspector-prop-val" id="inspectLoadState" style="color:var(--accent-green);">LOADED</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Natural Size</div>
+              <div class="inspector-prop-val" id="inspectNaturalSize">379 × 877</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Fallback</div>
+              <div class="inspector-prop-val" id="inspectFallback">NO</div>
+            </div>
+            <div class="inspector-prop">
+              <div class="inspector-prop-label">Fit / Align</div>
+              <div class="inspector-prop-val" id="inspectFitAlign">contain / btm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A. SCREEN -->
+    <div class="section" data-section-key="screen">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">A. SCREEN (기준 해상도)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'screen')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">기준 너비 (W)</span>
+          <div class="control-inputs">
+            <input type="range" id="refW" min="320" max="500" value="379" oninput="syncVal('refW')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="refWNum" value="379" oninput="syncVal('refW', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">기준 높이 (H)</span>
+          <div class="control-inputs">
+            <input type="range" id="refH" min="640" max="1000" value="877" oninput="syncVal('refH')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="refHNum" value="877" oninput="syncVal('refH', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">Safe Area Top</span>
+          <div class="control-inputs">
+            <input type="range" id="safeTop" min="0" max="60" value="44" oninput="syncVal('safeTop')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="safeTopNum" value="44" oninput="syncVal('safeTop', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">Safe Area Bottom</span>
+          <div class="control-inputs">
+            <input type="range" id="safeBottom" min="0" max="50" value="34" oninput="syncVal('safeBottom')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="safeBottomNum" value="34" oninput="syncVal('safeBottom', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B. HEADER -->
+    <div class="section" data-section-key="header">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">B. HEADER (상단 상태 / 시간)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'header')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">문구 내용</span>
+          <div class="control-inputs">
+            <input type="text" id="greetingText" value="늦은 시간이네요" oninput="update()" style="flex:1;background:var(--bg-card);border:1px solid var(--border-color);color:#fff;border-radius:4px;padding:4px 8px;font-size:11px;">
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">폰트 크기</span>
+          <div class="control-inputs">
+            <input type="range" id="headerFontSize" min="14" max="28" value="20" oninput="syncVal('headerFontSize')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="headerFontSizeNum" value="20" oninput="syncVal('headerFontSize', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C. MODE TABS -->
+    <div class="section" data-section-key="modeTabs">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">C. MODE TABS (캐릭터 / 가격)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'modeTabs')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">캐릭터 탭 X / Y</span>
+          <div class="control-inputs">
+            <input type="number" class="num-input" id="charTabX" value="0" oninput="update()">
+            <input type="number" class="num-input" id="charTabY" value="0" oninput="update()">
+            <span class="num-unit">px</span>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">가격 탭 X / Y</span>
+          <div class="control-inputs">
+            <input type="number" class="num-input" id="priceTabX" value="84" oninput="update()">
+            <input type="number" class="num-input" id="priceTabY" value="0" oninput="update()">
+            <span class="num-unit">px</span>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">탭 모서리 곡률</span>
+          <div class="control-inputs">
+            <input type="range" id="tabRadius" min="0" max="24" value="20" oninput="syncVal('tabRadius')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="tabRadiusNum" value="20" oninput="syncVal('tabRadius', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D. MAIN CHARACTER AREA -->
+    <div class="section" data-section-key="mainChar">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">D. MAIN LOOK AREA (메인 룩)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'mainChar')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">캐릭터 스케일</span>
+          <div class="control-inputs">
+            <input type="range" id="mainScale" min="60" max="150" value="100" oninput="syncVal('mainScale')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="mainScaleNum" value="100" oninput="syncVal('mainScale', true)">
+              <span class="num-unit">%</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">Y 위치 오프셋</span>
+          <div class="control-inputs">
+            <input type="range" id="mainOffsetY" min="-80" max="80" value="0" oninput="syncVal('mainOffsetY')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="mainOffsetYNum" value="0" oninput="syncVal('mainOffsetY', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">배경색</span>
+          <div class="control-inputs" style="justify-content:flex-end;">
+            <input type="color" id="mainBg" value="#f0ede8" onchange="update()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E. CHARACTER MODE BUTTON -->
+    <div class="section" data-section-key="charMode">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">E. CHARACTER MODE (모드 버튼)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'charMode')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">버튼 X / Y</span>
+          <div class="control-inputs">
+            <input type="number" class="num-input" id="modeBtnX" value="16" oninput="update()">
+            <input type="number" class="num-input" id="modeBtnY" value="140" oninput="update()">
+            <span class="num-unit">px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F. RIGHT ACTION BUTTONS -->
+    <div class="section" data-section-key="sideBtns">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">F. RIGHT ACTION BUTTONS</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'sideBtns')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">사이드 Y 위치</span>
+          <div class="control-inputs">
+            <input type="range" id="sideY" min="60" max="400" value="180" oninput="syncVal('sideY')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="sideYNum" value="180" oninput="syncVal('sideY', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">우측 여백 (Offset)</span>
+          <div class="control-inputs">
+            <input type="range" id="sideRight" min="4" max="30" value="12" oninput="syncVal('sideRight')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="sideRightNum" value="12" oninput="syncVal('sideRight', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">버튼 크기 (Size)</span>
+          <div class="control-inputs">
+            <input type="range" id="sideSize" min="32" max="60" value="44" oninput="syncVal('sideSize')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="sideSizeNum" value="44" oninput="syncVal('sideSize', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">개별 노출 여부</span>
+          <div class="control-inputs" style="gap:10px;">
+            <label class="checkbox-wrap"><input type="checkbox" id="showSaveBtn" checked onchange="update()"> 저장</label>
+            <label class="checkbox-wrap"><input type="checkbox" id="showSettingsBtn" checked onchange="update()"> 설정</label>
+            <label class="checkbox-wrap"><input type="checkbox" id="showPlayBtn" checked onchange="update()"> 재생</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G. RECOMMEND BUTTON -->
+    <div class="section" data-section-key="recBtn">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">G. RECOMMEND BUTTON (추천)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'recBtn')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">우측 / 하단 여백</span>
+          <div class="control-inputs">
+            <input type="number" class="num-input" id="recRight" value="14" oninput="update()">
+            <input type="number" class="num-input" id="recBottom" value="14" oninput="update()">
+            <span class="num-unit">px</span>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">버튼 크기</span>
+          <div class="control-inputs">
+            <input type="range" id="recSize" min="32" max="60" value="44" oninput="syncVal('recSize')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="recSizeNum" value="44" oninput="syncVal('recSize', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- H. THUMBNAIL STRIP -->
+    <div class="section" data-section-key="strip">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">H. THUMBNAIL STRIP (스트립)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'strip')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">상하 패딩 (Top/Btm)</span>
+          <div class="control-inputs">
+            <input type="range" id="stripPadV" min="0" max="24" value="4" oninput="syncVal('stripPadV')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="stripPadVNum" value="4" oninput="syncVal('stripPadV', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">좌우 패딩 (Left/Rgt)</span>
+          <div class="control-inputs">
+            <input type="range" id="stripPadH" min="0" max="30" value="18" oninput="syncVal('stripPadH')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="stripPadHNum" value="18" oninput="syncVal('stripPadH', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">배경색</span>
+          <div class="control-inputs" style="justify-content:flex-end;">
+            <input type="color" id="stripBg" value="#ffffff" onchange="update()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- I. THUMBNAIL ITEM -->
+    <div class="section" data-section-key="thumbItem">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">I. THUMBNAIL ITEM (아이템 크기)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'thumbItem')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">너비 (Width)</span>
+          <div class="control-inputs">
+            <input type="range" id="thumbW" min="40" max="140" value="74" oninput="syncVal('thumbW')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="thumbWNum" value="74" oninput="syncVal('thumbW', true)">
+              <span class="num-unit">px</span>
+            </div>
+            <span class="norm-percent" id="thumbWNorm">19.5%</span>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">높이 (Height)</span>
+          <div class="control-inputs">
+            <input type="range" id="thumbH" min="60" max="220" value="146" oninput="syncVal('thumbH')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="thumbHNum" value="146" oninput="syncVal('thumbH', true)">
+              <span class="num-unit">px</span>
+            </div>
+            <span class="norm-percent" id="thumbHNorm">16.6%</span>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">간격 (Gap)</span>
+          <div class="control-inputs">
+            <input type="range" id="thumbGap" min="0" max="30" value="16" oninput="syncVal('thumbGap')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="thumbGapNum" value="16" oninput="syncVal('thumbGap', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">모서리 곡률 (Radius)</span>
+          <div class="control-inputs">
+            <input type="range" id="thumbR" min="0" max="30" value="12" oninput="syncVal('thumbR')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="thumbRNum" value="12" oninput="syncVal('thumbR', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">선택 테두리색</span>
+          <div class="control-inputs" style="justify-content:flex-end;">
+            <input type="color" id="selColor" value="#7d5cc0" onchange="update()">
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">선택 테두리 굵기</span>
+          <div class="control-inputs">
+            <input type="range" id="selBorder" min="1" max="5" value="2" oninput="syncVal('selBorder')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="selBorderNum" value="2" oninput="syncVal('selBorder', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- J. THUMBNAIL CHARACTER -->
+    <div class="section" data-section-key="charImg">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">J. THUMBNAIL IMAGE (피팅)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'charImg')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">피팅 방식 (Fit)</span>
+          <select id="imgFit" onchange="update()">
+            <option value="contain" selected>Contain (전신 보임 - 권장)</option>
+            <option value="cover">Cover (크롭 위험)</option>
+            <option value="fill">Fill (늘리기)</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <span class="control-label">스케일 (Scale)</span>
+          <div class="control-inputs">
+            <input type="range" id="imgScale" min="80" max="250" value="100" oninput="syncVal('imgScale')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="imgScaleNum" value="100" oninput="syncVal('imgScale', true)">
+              <span class="num-unit">%</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="control-label">하단 오프셋 (Bottom)</span>
+          <div class="control-inputs">
+            <input type="range" id="imgOffsetY" min="-30" max="30" value="0" oninput="syncVal('imgOffsetY')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="imgOffsetYNum" value="0" oninput="syncVal('imgOffsetY', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- K. BOTTOM NAVIGATION -->
+    <div class="section" data-section-key="nav">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">K. BOTTOM NAVIGATION (네비)</div>
+        <div class="section-tools">
+          <button class="sec-reset-btn" onclick="resetSection(event, 'nav')">↺</button>
+          <span class="section-toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="control-row">
+          <span class="control-label">네비 높이</span>
+          <div class="control-inputs">
+            <input type="range" id="navH" min="40" max="90" value="64" oninput="syncVal('navH')">
+            <div class="num-input-wrap">
+              <input type="number" class="num-input" id="navHNum" value="64" oninput="syncVal('navH', true)">
+              <span class="num-unit">px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 품질 검증 및 충돌 감지 -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-label">🛡️ 레이아웃 검증 & 충돌 감지</div>
+        <span class="section-toggle-icon">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="validation-box" id="validationBox"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── 2. 중앙 폰 프리뷰 ── -->
+  <div class="panel-preview">
+    
+    <div class="preview-toolbar">
+      <div class="preview-toolbar-left">
+        <div class="device-select-wrap">
+          <span>📱 디바이스:</span>
+          <select id="devicePresetSelect" onchange="changeDevicePreset(this.value)">
+            <option value="379x877" selected>TodayPick Reference (379 × 877)</option>
+            <option value="360x800">Compact Android (360 × 800)</option>
+            <option value="390x844">iPhone 14/15 (390 × 844)</option>
+            <option value="412x915">Pixel / Galaxy S (412 × 915)</option>
+          </select>
+        </div>
+      </div>
+
+      
+      <div class="source-mode-bar" style="display:flex;align-items:center;gap:4px;background:var(--bg-panel);padding:3px 6px;border-radius:6px;border:1px solid var(--border-color);">
+        <span style="font-size:10px;font-weight:700;color:var(--text-muted);margin-right:4px;">🌐 SOURCE:</span>
+        <button class="source-btn active" id="srcBtnDrive" onclick="setSourceMode('DRIVE')" style="padding:3px 8px;font-size:10px;font-weight:700;border-radius:4px;border:none;cursor:pointer;background:var(--accent-purple);color:#fff;">DRIVE</button>
+        <button class="source-btn" id="srcBtnLocal" onclick="setSourceMode('LOCAL')" style="padding:3px 8px;font-size:10px;font-weight:600;border-radius:4px;border:none;cursor:pointer;background:none;color:var(--text-muted);">LOCAL</button>
+        <button class="source-btn" id="srcBtnEmbedded" onclick="setSourceMode('EMBEDDED')" style="padding:3px 8px;font-size:10px;font-weight:600;border-radius:4px;border:none;cursor:pointer;background:none;color:var(--text-muted);">EMBEDDED</button>
+        <span id="driveAssetHealthBadge" style="font-size:9.5px;font-weight:700;color:var(--accent-green);background:var(--accent-green-bg);padding:2px 6px;border-radius:4px;margin-left:4px;font-family:'SF Mono',monospace;">10/10 Loaded</span>
+      </div>
+
+      <button class="btn-sm btn-purple" id="compareToggleBtn" onclick="toggleCompare()">
+        ⇄ Before / After 비교 모드
+      </button>
+    </div>
+
+    <div class="phone-viewport-container">
+
+      <!-- BEFORE (비교 모드) -->
+      <div class="phone-wrapper" id="beforePhoneWrapper" style="display:none;">
+        <div class="phone-title-badge" style="color:#f87171;">BEFORE (기존 앱 기준)</div>
+        <div class="phone-chassis">
+          <div class="phone-notch"><div class="notch-cam"></div></div>
+          <div class="app-screen">
+            <div class="app-header-area">
+              <div class="app-greeting">늦은 시간이네요</div>
+              <div class="app-tabs-container">
+                <div class="tab-btn char-tab" style="left:0px;top:0px;">캐릭터</div>
+                <div class="tab-btn price-tab" style="left:84px;top:0px;">가격</div>
+              </div>
+            </div>
+            <div class="main-stage-area">
+              <div class="main-outfit-img-wrap" style="align-items:flex-start;overflow:hidden;">
+                <img src="./assets/outfits/outfit_01.png" style="width:100%;height:140%;object-fit:cover;object-position:center top;" alt="Before Crop">
+              </div>
+              <div class="side-buttons-group" style="right:12px;top:180px;">
+                <div class="side-btn save">저장</div>
+                <div class="side-btn settings">⚙</div>
+                <div class="side-btn play">▶</div>
+              </div>
+              <div class="recommend-floating-btn" style="right:14px;bottom:14px;">추천</div>
+            </div>
+            <!-- 기존 72x90 썸네일 스트립 -->
+            <div class="thumbnail-strip-wrapper" style="padding:8px 12px;background:#ffffff;">
+              <div class="thumbnail-scroll-area" style="gap:6px;">
+                <div style="width:72px;height:90px;border-radius:8px;background:#f0e8dc;border:2px solid #7c5cbf;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <img src="./assets/outfits/outfit_01.png" style="width:100%;height:150%;object-fit:cover;object-position:top;" alt="thumb">
+                </div>
+                <div style="width:72px;height:90px;border-radius:8px;background:#e8dce8;border:2px solid transparent;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <img src="./assets/outfits/outfit_02.png" style="width:100%;height:150%;object-fit:cover;object-position:top;" alt="thumb">
+                </div>
+                <div style="width:72px;height:90px;border-radius:8px;background:#dce8e8;border:2px solid transparent;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <img src="./assets/outfits/outfit_03.png" style="width:100%;height:150%;object-fit:cover;object-position:top;" alt="thumb">
+                </div>
+                <div style="width:72px;height:90px;border-radius:8px;background:#e8e8dc;border:2px solid transparent;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <img src="./assets/outfits/outfit_04.png" style="width:100%;height:150%;object-fit:cover;object-position:top;" alt="thumb">
+                </div>
+              </div>
+            </div>
+            <div class="app-nav-bar">
+              <div class="nav-item active"><div class="nav-indicator-dot"></div>홈</div>
+              <div class="nav-item">내 코디</div>
+            </div>
+          </div>
+          <div class="phone-home-indicator"></div>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:4px;">
+          72×90px · 상반신 크롭 노출
+        </div>
+      </div>
+
+      <!-- MAIN / AFTER (실시간 앱형 폰 뷰) -->
+      <div class="phone-wrapper" id="mainPhoneWrapper">
+        <div class="phone-title-badge" id="mainPhoneBadge">HOME_UI PREVIEW (실시간 앱 화면)</div>
+        <div class="phone-chassis" id="phoneChassis">
+          <div class="phone-notch"><div class="notch-cam"></div></div>
+          
+          <div class="app-screen" id="appScreen">
+            <!-- 헤더 영역 -->
+            <div class="app-header-area" id="appHeaderArea" onclick="selectComponent('Header')">
+              <div class="app-greeting" id="greetingDisplay">늦은 시간이네요</div>
+              <div class="app-tabs-container">
+                <div class="tab-btn char-tab" id="dragCharTab" data-elem="charTab" onclick="handleModeTabClick('char')">
+                  캐릭터
+                </div>
+                <div class="tab-btn price-tab" id="dragPriceTab" data-elem="priceTab" onclick="handleModeTabClick('price')">
+                  가격
+                </div>
+              </div>
+            </div>
+
+            <!-- 캐릭터 모드 플로팅 버튼 -->
+            <div class="char-mode-floating-btn" id="dragCharModeBtn" data-elem="charModeBtn" onclick="selectComponent('Character Mode Button')">
+              <span id="charModeBtnLabel">2D ♀</span> ▾
+            </div>
+
+            <!-- 메인 캐릭터 스테이지 (실물 코디 이미지 표시) -->
+            <div class="main-stage-area" id="mainStageArea">
+              
+              <!-- 가격 오버레이 (PRICE_UI 모드일 때 자동 활성화) -->
+              <div class="price-details-overlay" id="priceOverlayCard" style="display:none;">
+                <div class="price-overlay-title" id="priceCardTitle">코디 상품 가격 정보</div>
+                <div id="priceItemRowsContainer"></div>
+                <div class="price-total-row">
+                  <span>총 코디 금액</span>
+                  <span id="priceCardTotal">₩148,000</span>
+                </div>
+                <button class="buy-now-btn" onclick="alert('제휴 쇼핑몰 상품 페이지로 이동합니다.')">🛍️ 코디 상품 모아보기 / 구매</button>
+              </div>
+
+              <div class="main-outfit-img-wrap" id="mainOutfitImgWrap" data-elem="mainChar" onclick="selectComponent('Main Image Area')">
+                <img id="mainOutfitImgEl" class="main-outfit-img" src="./assets/outfits/outfit_01.png" alt="TodayOutfit">
+              </div>
+
+              <!-- 사이드 버튼 그룹 -->
+              <div class="side-buttons-group" id="dragSideBtns" data-elem="sideBtns" onclick="selectComponent('Side Buttons')">
+                <div class="side-btn save" id="sideBtnSave" onclick="handleSaveAction(event)">저장</div>
+                <div class="side-btn settings" id="sideBtnSettings">⚙</div>
+                <div class="side-btn play" id="sideBtnPlay">▶</div>
+              </div>
+
+              <!-- 추천 플로팅 버튼 -->
+              <div class="recommend-floating-btn" id="dragRecBtn" data-elem="recBtn" onclick="switchScreen('RECOMMEND_UI')">
+                추천
+              </div>
+            </div>
+
+            <!-- 썸네일 스트립 (10종 실물 코디 좌우 슬라이드 캐러셀) -->
+            <div class="thumbnail-strip-wrapper" id="thumbStripWrapper" data-elem="thumbStrip" onclick="selectComponent('Thumbnail Strip')">
+              <div class="thumbnail-scroll-area" id="thumbScrollArea">
+                <!-- JS 실물 썸네일 렌더링 -->
+              </div>
+            </div>
+
+            <!-- 하단 네비게이션 바 -->
+            <div class="app-nav-bar" id="appNavBar" data-elem="bottomNav" onclick="selectComponent('Bottom Nav')">
+              <div class="nav-item active" id="navItemHome" onclick="switchScreen('HOME_UI')">
+                <div class="nav-indicator-dot"></div>
+                홈
+              </div>
+              <div class="nav-item" id="navItemMyCoordi" onclick="switchScreen('MY_COORDI_UI')">
+                내 코디
+              </div>
+            </div>
+
+          </div>
+
+          <div class="phone-home-indicator"></div>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--accent-green);margin-top:4px;" id="mainPhoneFooterText">
+          실물 코디 연동 완료 · 74×146px
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ── 3. 우측 출력 & 코드 패널 ── -->
+  <div class="panel-output">
+    <div class="output-tabs">
+      <div class="output-tab active" onclick="switchOutputTab('unity')">Unity C#</div>
+      <div class="output-tab" onclick="switchOutputTab('json')">JSON Spec</div>
+      <div class="output-tab" onclick="switchOutputTab('codex')">Codex Prompt</div>
+      <div class="output-tab" onclick="switchOutputTab('diff')">Diff 요약</div>
+    </div>
+
+    <div class="output-content">
+
+      <!-- Unity C# 탭 -->
+      <div id="outputTabUnity" class="code-viewer-container">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:11px;color:var(--text-muted);font-weight:600;">Unity uGUI Reference Script</span>
+          <span style="font-size:10px;color:var(--accent-purple);">LookScrollItem.cs</span>
+        </div>
+        <div class="code-box" id="unityCodeBox"></div>
+        <div class="btn-group">
+          <button class="copy-action-btn" id="copyUnityBtn" style="flex:1;" onclick="copyText('unityCodeBox', 'copyUnityBtn')">
+            📋 Unity C# 복사
+          </button>
+          <button class="copy-action-btn btn-green" style="flex:1;" onclick="downloadText('unityCodeBox', 'HOME_UI_unity_reference.txt')">
+            💾 C# 저장
+          </button>
+        </div>
+      </div>
+
+      <!-- JSON Spec 탭 -->
+      <div id="outputTabJson" class="code-viewer-container" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:11px;color:var(--text-muted);font-weight:600;">HOME_UI Specification</span>
+          <span style="font-size:10px;color:var(--accent-purple);" id="jsonSpecIdLabel">schemaVersion: 1</span>
+        </div>
+        <div class="code-box" id="jsonCodeBox"></div>
+        <div class="btn-group">
+          <button class="copy-action-btn" id="copyJsonBtn" style="flex:1;" onclick="copyText('jsonCodeBox', 'copyJsonBtn')">
+            📋 JSON 복사
+          </button>
+          <button class="copy-action-btn btn-green" style="flex:1;" onclick="downloadJsonSpec()">
+            💾 JSON 저장
+          </button>
+        </div>
+      </div>
+
+      <!-- Codex Prompt 탭 -->
+      <div id="outputTabCodex" class="code-viewer-container" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:11px;color:var(--text-muted);font-weight:600;">Codex Unity 구현 지시문</span>
+          <span style="font-size:10px;color:var(--accent-purple);">Handoff Ready</span>
+        </div>
+        <div class="code-box" id="codexPromptBox"></div>
+        <div class="btn-group">
+          <button class="copy-action-btn" id="copyCodexBtn" style="flex:1;" onclick="copyText('codexPromptBox', 'copyCodexBtn')">
+            📋 Codex 지시문 복사
+          </button>
+          <button class="copy-action-btn btn-green" style="flex:1;" onclick="downloadText('codexPromptBox', 'HOME_UI_codex_prompt.md')">
+            💾 Prompt 저장
+          </button>
+        </div>
+      </div>
+
+      <!-- Diff 요약 탭 -->
+      <div id="outputTabDiff" class="code-viewer-container" style="display:none;">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:6px;">
+          Baseline 대비 변경 내역
+        </div>
+        <div class="diff-summary-card" id="diffSummaryContainer"></div>
+        <div class="code-box" id="diffTextBox" style="min-height:120px;max-height:160px;margin-top:8px;"></div>
+        <div class="btn-group">
+          <button class="copy-action-btn" id="copyDiffBtn" style="flex:1;" onclick="copyText('diffTextBox', 'copyDiffBtn')">
+            📋 Diff 복사
+          </button>
+          <button class="copy-action-btn btn-green" style="flex:1;" onclick="downloadText('diffTextBox', 'HOME_UI_change_summary.txt')">
+            💾 Diff 저장
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+// ── 0. Google Drive Asset Registry (spark/image Folder ID: 1Rba_mwvReCrPHYoR4fcS84kONe1bEN__) ──
+const DRIVE_ASSET_REGISTRY = [
+  {
+    "outfitId": "outfit_01",
+    "sourceFileName": "test_slice_00.png",
+    "driveFileId": "1BaP4KvL7JGOKsaQzQ4l6GmzGq4Lo3dSJ",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Burgundy Tiered Skirt",
+    "koreanTitle": "\ubc84\uac74\ub514 \uace8\uc9c0\ud0d1 & \ud2f0\uc5b4\ub4dc \uc2a4\ucee4\ud2b8",
+    "category": "Casual Feminine",
+    "localSrc": "./assets/outfits/test_slice_00.png",
+    "price": "\u20a9148,000",
+    "itemPrices": [
+      {
+        "item": "\ubc84\uac74\ub514 \uace8\uc9c0 \ud558\ud504\ub125 \ub2c8\ud2b8",
+        "price": "\u20a942,000"
+      },
+      {
+        "item": "\ube0c\ub77c\uc6b4 \ud2f0\uc5b4\ub4dc \ud50c\ub9ac\uce20 \uc2a4\ucee4\ud2b8",
+        "price": "\u20a948,000"
+      },
+      {
+        "item": "\ube0c\ub77c\uc6b4 \ub808\ub354 \ud06c\ub85c\uc2a4\ubc31",
+        "price": "\u20a936,000"
+      },
+      {
+        "item": "\ubca0\uc774\uc9c0 \ud558\uc774\ud0d1 \uc2a4\ub2c8\ucee4\uc988",
+        "price": "\u20a922,000"
+      }
+    ],
+    "bg": "#f6f1ea"
+  },
+  {
+    "outfitId": "outfit_02",
+    "sourceFileName": "test_slice_01.png",
+    "driveFileId": "1HgQOoepEfgN4pEee5x8zXRPtqWzQz7Fs",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "White Crop & Wide Denim",
+    "koreanTitle": "\ud654\uc774\ud2b8 \ud06c\ub86d\ud0d1 & \uc640\uc774\ub4dc \ub370\ub2d8",
+    "category": "Daily Casual",
+    "localSrc": "./assets/outfits/test_slice_01.png",
+    "price": "\u20a9119,000",
+    "itemPrices": [
+      {
+        "item": "\ud654\uc774\ud2b8 \uc2ac\ub9bc \uace8\uc9c0 \ud06c\ub86d\ud2f0",
+        "price": "\u20a924,000"
+      },
+      {
+        "item": "\ub525\ube14\ub8e8 \uc640\uc774\ub4dc \ub871 \ub370\ub2d8 \ud32c\uce20",
+        "price": "\u20a952,000"
+      },
+      {
+        "item": "\ud50c\ub77c\uc6cc \uce94\ubc84\uc2a4 \uc204\ub354 \uc5d0\ucf54\ubc31",
+        "price": "\u20a918,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \ud074\ub798\uc2dd \uc2a4\ub2c8\ucee4\uc988",
+        "price": "\u20a925,000"
+      }
+    ],
+    "bg": "#f0f4f8"
+  },
+  {
+    "outfitId": "outfit_03",
+    "sourceFileName": "test_slice_02.png",
+    "driveFileId": "1_QsTRq4kp74foJCzAWvC05yUNEKHs1AS",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Lilac Floral Midi Dress",
+    "koreanTitle": "\ub77c\uc77c\ub77d \ud50c\ub85c\ub7f4 \uc26c\ud3f0 \ubbf8\ub514 \uc6d0\ud53c\uc2a4",
+    "category": "Romantic Dress",
+    "localSrc": "./assets/outfits/test_slice_02.png",
+    "price": "\u20a9165,000",
+    "itemPrices": [
+      {
+        "item": "\ub77c\uc77c\ub77d \ud50c\ub85c\ub7f4 \uc26c\ud3f0 \uc6d0\ud53c\uc2a4",
+        "price": "\u20a989,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \uc2a4\ud018\uc5b4 \uc204\ub354\ubc31",
+        "price": "\u20a942,000"
+      },
+      {
+        "item": "\ub204\ub4dc\ud1a4 \uc2a4\ud2b8\ub7a9 \ube14\ub85d\ud790",
+        "price": "\u20a934,000"
+      }
+    ],
+    "bg": "#f9f6fc"
+  },
+  {
+    "outfitId": "outfit_04",
+    "sourceFileName": "test_slice_03.png",
+    "driveFileId": "1D_-8eZ_JEjlkvmHz5lOlhVftaToPDMU6",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Mint Linen Belted Jumpsuit",
+    "koreanTitle": "\ubbfc\ud2b8 \ub9ac\ub128 \ubca8\ud2f0\ub4dc \uc810\ud504\uc218\ud2b8 \ub8e9",
+    "category": "Modern Resort",
+    "localSrc": "./assets/outfits/test_slice_03.png",
+    "price": "\u20a9178,000",
+    "itemPrices": [
+      {
+        "item": "\ubbfc\ud2b8 \ub9ac\ub128 \uce74\ub77c \uc810\ud504\uc218\ud2b8",
+        "price": "\u20a998,000"
+      },
+      {
+        "item": "\ub77c\ud0c4 \ub808\ub354 \uc2a4\ud2b8\ub7a9 \ubc84\ud0b7\ubc31",
+        "price": "\u20a945,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \uc2ac\ub9bd\uc628 \ub85c\ud37c",
+        "price": "\u20a935,000"
+      }
+    ],
+    "bg": "#f0f8f5"
+  },
+  {
+    "outfitId": "outfit_05",
+    "sourceFileName": "test_slice_04.png",
+    "driveFileId": "11_-6kWorCoCxB4eVmUMPtHx86AGjRRqU",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Chic Black Mini Dress",
+    "koreanTitle": "\uc2dc\ud06c \ube14\ub799 \uc2ac\ub9ac\ube0c\ub9ac\uc2a4 \ubbf8\ub2c8 \ub4dc\ub808\uc2a4",
+    "category": "Chic Evening",
+    "localSrc": "./assets/outfits/test_slice_04.png",
+    "price": "\u20a9192,000",
+    "itemPrices": [
+      {
+        "item": "\ube14\ub799 A\ub77c\uc778 \ubbf8\ub2c8 \ub4dc\ub808\uc2a4",
+        "price": "\u20a979,000"
+      },
+      {
+        "item": "\uace8\ub4dc\uccb4\uc778 \ud03c\ud305 \uc204\ub354\ubc31",
+        "price": "\u20a965,000"
+      },
+      {
+        "item": "\ube14\ub799 \uc575\ud074 \uc2a4\ud2b8\ub7a9 \ud790",
+        "price": "\u20a948,000"
+      }
+    ],
+    "bg": "#f4f4f5"
+  },
+  {
+    "outfitId": "outfit_06",
+    "sourceFileName": "test_slice_05.png",
+    "driveFileId": "1pNNfAUjfU-b76zE18eNcsqZzYKIq7QfD",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Stripe Knit & White Slacks",
+    "koreanTitle": "\ub9c8\ub9b0 \uc2a4\ud2b8\ub77c\uc774\ud504 \ub2c8\ud2b8 & \ud654\uc774\ud2b8 \uc2ac\ub799\uc2a4",
+    "category": "Clean Smart",
+    "localSrc": "./assets/outfits/test_slice_05.png",
+    "price": "\u20a9156,000",
+    "itemPrices": [
+      {
+        "item": "\ub9c8\ub9b0 \ube14\ub8e8 \uc2a4\ud2b8\ub77c\uc774\ud504 \ub2c8\ud2b8",
+        "price": "\u20a945,000"
+      },
+      {
+        "item": "\ud558\uc774\uc6e8\uc774\uc2a4\ud2b8 \ud654\uc774\ud2b8 \uc2ac\ub799\uc2a4",
+        "price": "\u20a955,000"
+      },
+      {
+        "item": "\ub124\uc774\ube44 \ub808\ub354 \ud06c\ub85c\uc2a4\ubc31",
+        "price": "\u20a932,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \ub808\ub354 \ub85c\ud37c",
+        "price": "\u20a924,000"
+      }
+    ],
+    "bg": "#f3f6fa"
+  },
+  {
+    "outfitId": "outfit_07",
+    "sourceFileName": "test_slice_06.png",
+    "driveFileId": "1qwOeGZNLg2Vb9Ug82eHKWw3_LCr4trEN",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Olive Tee & Khaki Cargo",
+    "koreanTitle": "\uc62c\ub9ac\ube0c \uc624\ubc84\ud54f \ud2f0 & \uce74\ud0a4 \uce74\uace0 \uc1fc\uce20",
+    "category": "Street Casual",
+    "localSrc": "./assets/outfits/test_slice_06.png",
+    "price": "\u20a9125,000",
+    "itemPrices": [
+      {
+        "item": "\uc62c\ub9ac\ube0c \uc624\ubc84\ud54f \ub77c\uc6b4\ub4dc \ud2f0",
+        "price": "\u20a928,000"
+      },
+      {
+        "item": "\ubca8\ud2f0\ub4dc \uce74\ud0a4 \uce74\uace0 \ubc18\ubc14\uc9c0",
+        "price": "\u20a946,000"
+      },
+      {
+        "item": "\ube0c\ub77c\uc6b4 \ub4dc\ub85c\uc2a4\ud2b8\ub9c1 \ubc84\ud0b7\ubc31",
+        "price": "\u20a927,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \ud50c\ub7ab\ud3fc \uc2a4\ub2c8\ucee4\uc988",
+        "price": "\u20a924,000"
+      }
+    ],
+    "bg": "#f6f7f2"
+  },
+  {
+    "outfitId": "outfit_08",
+    "sourceFileName": "test_slice_07.png",
+    "driveFileId": "1xzkXhrvj80C74yeuVPiwPVANS0JFaXNB",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Pink Floral Puff Dress",
+    "koreanTitle": "\ud551\ud06c \ud37c\ud504 \uc2ac\ub9ac\ube0c \ud50c\ub85c\ub7f4 \ubbf8\ub2c8 \ub4dc\ub808\uc2a4",
+    "category": "Lovely Sweet",
+    "localSrc": "./assets/outfits/test_slice_07.png",
+    "price": "\u20a9162,000",
+    "itemPrices": [
+      {
+        "item": "\ud551\ud06c \ud37c\ud504 \ud50c\ub85c\ub7f4 \uc6d0\ud53c\uc2a4",
+        "price": "\u20a982,000"
+      },
+      {
+        "item": "\ud551\ud06c \ud03c\ud305 \uccb4\uc778 \ud50c\ub7a9\ubc31",
+        "price": "\u20a948,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \uba54\ub9ac\uc81c\uc778 \uc288\uc988",
+        "price": "\u20a932,000"
+      }
+    ],
+    "bg": "#fef5f7"
+  },
+  {
+    "outfitId": "outfit_09",
+    "sourceFileName": "test_slice_08.png",
+    "driveFileId": "1GXD-hGjVSv1nVbbWyJbO-oF4s6uf37LS",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Beige Ribbed & Coffee Denim",
+    "koreanTitle": "\ubca0\uc774\uc9c0 \uace8\uc9c0 \ub2c8\ud2b8 & \ucee4\ud53c \ub370\ub2d8 \ub8e9",
+    "category": "Cafe Daily",
+    "localSrc": "./assets/outfits/test_slice_08.png",
+    "price": "\u20a9134,000",
+    "itemPrices": [
+      {
+        "item": "\ubca0\uc774\uc9c0 \uc2ac\ub9bc \uace8\uc9c0 \ud06c\ub8e8\ub125 \ud2f0",
+        "price": "\u20a932,000"
+      },
+      {
+        "item": "\ub2e4\ud06c\ube14\ub8e8 \uc640\uc774\ub4dc \ub370\ub2d8 \ud32c\uce20",
+        "price": "\u20a954,000"
+      },
+      {
+        "item": "\ube0c\ub77c\uc6b4 \ub808\ub354 \ud06c\ub85c\uc2a4\ubc31",
+        "price": "\u20a926,000"
+      },
+      {
+        "item": "\ud654\uc774\ud2b8 \ud074\ub798\uc2dd \uc2a4\ub2c8\ucee4\uc988",
+        "price": "\u20a922,000"
+      }
+    ],
+    "bg": "#f9f5ee"
+  },
+  {
+    "outfitId": "outfit_10",
+    "sourceFileName": "test_slice_09.png",
+    "driveFileId": "1taBAbYSZm7eJNtWNyQ-8J21nigp1Wzr1",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "White Sleeveless Maxi Dress",
+    "koreanTitle": "\ud654\uc774\ud2b8 \uc2ac\ub9ac\ube0c\ub9ac\uc2a4 \ub9e5\uc2dc \ub871 \ub4dc\ub808\uc2a4",
+    "category": "Resort Pure",
+    "localSrc": "./assets/outfits/test_slice_09.png",
+    "price": "\u20a9189,000",
+    "itemPrices": [
+      {
+        "item": "\ud654\uc774\ud2b8 \ub8e8\uc988\ud54f \ub9e5\uc2dc \ub4dc\ub808\uc2a4",
+        "price": "\u20a995,000"
+      },
+      {
+        "item": "\uc2a4\uce74\ud504 \uc7a5\uc2dd \ub77c\ud0c4 \ud1a0\ud2b8\ubc31",
+        "price": "\u20a956,000"
+      },
+      {
+        "item": "\ube0c\ub77c\uc6b4 \ud06c\ub85c\uc2a4 \uc2a4\ud2b8\ub7a9 \uc0cc\ub4e4",
+        "price": "\u20a938,000"
+      }
+    ],
+    "bg": "#f7f3ee"
+  },
+  {
+    "outfitId": "outfit_11",
+    "sourceFileName": "test_slice_10.png",
+    "driveFileId": "1SPkCC8x7Uzqjjb52MuzUh08g52LWdhbP",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Urban Chic Trench & Slacks",
+    "koreanTitle": "\uc5b4\ubc18 \uc2dc\ud06c \ud2b8\ub80c\uce58 \ucf54\ub514 \ub8e9",
+    "category": "Urban Chic",
+    "localSrc": "./assets/outfits/test_slice_10.png",
+    "price": "\u20a9198,000",
+    "itemPrices": [
+      {
+        "item": "\ud074\ub798\uc2dd \uc2f1\uae00 \ud2b8\ub80c\uce58 \ucf54\ud2b8",
+        "price": "\u20a9118,000"
+      },
+      {
+        "item": "\ud14c\uc774\ud37c\ub4dc \uc2ac\ub799\uc2a4 \ud32c\uce20",
+        "price": "\u20a952,000"
+      },
+      {
+        "item": "\ub808\ub354 \uc204\ub354 \ubbf8\ub2c8\ubc31",
+        "price": "\u20a928,000"
+      }
+    ],
+    "bg": "#f5eee6"
+  },
+  {
+    "outfitId": "outfit_12",
+    "sourceFileName": "test_slice_11.png",
+    "driveFileId": "1EEZcITyYhzYLva5bUbMKdSu96aaiejVt",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Pastel Knit & Pleated Skirt",
+    "koreanTitle": "\ud30c\uc2a4\ud154 \ub2c8\ud2b8 & \ud50c\ub9ac\uce20 \uc2a4\ucee4\ud2b8 \ub8e9",
+    "category": "Soft Feminine",
+    "localSrc": "./assets/outfits/test_slice_11.png",
+    "price": "\u20a9142,000",
+    "itemPrices": [
+      {
+        "item": "\uc18c\ud504\ud2b8 \ud30c\uc2a4\ud154 \uc6b8 \ub77c\uc6b4\ub4dc \ub2c8\ud2b8",
+        "price": "\u20a948,000"
+      },
+      {
+        "item": "\ub871 \ud50c\ub9ac\uce20 A\ub77c\uc778 \uc2a4\ucee4\ud2b8",
+        "price": "\u20a956,000"
+      },
+      {
+        "item": "\uc544\uc774\ubcf4\ub9ac \ub85c\ud37c \uc288\uc988",
+        "price": "\u20a938,000"
+      }
+    ],
+    "bg": "#f8f5f2"
+  },
+  {
+    "outfitId": "outfit_13",
+    "sourceFileName": "test_slice_12.png",
+    "driveFileId": "1jyUAllNN2qnZKH-53aWRX6zvhZlpeGl5",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Modern Minimalist Linen Set",
+    "koreanTitle": "\ubaa8\ub358 \ubbf8\ub2c8\uba40 \ub9ac\ub128 \uc14b\uc5c5 \ub8e9",
+    "category": "Modern Minimal",
+    "localSrc": "./assets/outfits/test_slice_12.png",
+    "price": "\u20a9168,000",
+    "itemPrices": [
+      {
+        "item": "\ub9ac\ub128 \ub8e8\uc988\ud54f \ube14\ub808\uc774\uc800",
+        "price": "\u20a988,000"
+      },
+      {
+        "item": "\ub9ac\ub128 \uc2a4\ud2b8\ub808\uc774\ud2b8 \uc1fc\uce20",
+        "price": "\u20a946,000"
+      },
+      {
+        "item": "\ubbf8\ub2c8\uba40 \ub808\ub354 \ubbac \uc0cc\ub4e4",
+        "price": "\u20a934,000"
+      }
+    ],
+    "bg": "#f6f6f6"
+  },
+  {
+    "outfitId": "outfit_14",
+    "sourceFileName": "test_slice_14.png",
+    "driveFileId": "1ZPk017lYGehzSI5za7Z08OoLZeJIyncC",
+    "sourceType": "GOOGLE_DRIVE_REAL_USER_ASSET",
+    "name": "Retro Vintage Denim & Tee",
+    "koreanTitle": "\ub808\ud2b8\ub85c \ube48\ud2f0\uc9c0 \ub370\ub2d8 & \ud2f0 \ub8e9",
+    "category": "Vintage Casual",
+    "localSrc": "./assets/outfits/test_slice_14.png",
+    "price": "\u20a9115,000",
+    "itemPrices": [
+      {
+        "item": "\ube48\ud2f0\uc9c0 \uc6cc\uc2f1 \uadf8\ub798\ud53d \ud2f0",
+        "price": "\u20a932,000"
+      },
+      {
+        "item": "\uc640\uc774\ub4dc \uc2a4\ud2b8\ub808\uc774\ud2b8 \ub370\ub2d8",
+        "price": "\u20a954,000"
+      },
+      {
+        "item": "\ub808\ud2b8\ub85c \uce94\ubc84\uc2a4 \ud558\uc774\ud0d1",
+        "price": "\u20a929,000"
+      }
+    ],
+    "bg": "#f4f3f0"
+  }
+];
+
+const DRIVE_URL_TEMPLATE = "https://lh3.googleusercontent.com/d/{FILE_ID}";
+const DRIVE_UC_TEMPLATE = "https://drive.google.com/uc?export=view&id={FILE_ID}";
+
+let IMAGE_SOURCE_MODE = "DRIVE"; // 기본 모드: DRIVE (LOCAL, EMBEDDED 지원)
+const assetStatus = {};
+
+function getDriveImageUrl(fileId) {
+  if (!fileId) return "";
+  return DRIVE_URL_TEMPLATE.replace("{FILE_ID}", fileId);
+}
+
+function resolveImageSource(item) {
+  if (!item) return "";
+  switch (IMAGE_SOURCE_MODE) {
+    case "DRIVE":
+      return item.driveFileId ? getDriveImageUrl(item.driveFileId) : item.localSrc;
+    case "EMBEDDED":
+      return item.embeddedSrc || item.localSrc;
+    case "LOCAL":
+    default:
+      return item.localSrc;
+  }
+}
+
+function attachImageFallback(img, item) {
+  if (!img || !item) return;
+  
+  img.onload = () => {
+    assetStatus[item.outfitId] = {
+      state: "LOADED",
+      source: IMAGE_SOURCE_MODE,
+      naturalWidth: img.naturalWidth || 379,
+      naturalHeight: img.naturalHeight || 877,
+      fallback: false
+    };
+    updateAssetHealthBadge();
+    syncInspectorWithSelection();
+  };
+
+  img.onerror = () => {
+    if (IMAGE_SOURCE_MODE === "DRIVE" && item.localSrc && img.getAttribute("data-fallback-attempted") !== "true") {
+      img.setAttribute("data-fallback-attempted", "true");
+      img.src = item.localSrc;
+      assetStatus[item.outfitId] = {
+        state: "FALLBACK_LOCAL",
+        source: "LOCAL",
+        naturalWidth: img.naturalWidth || 379,
+        naturalHeight: img.naturalHeight || 877,
+        fallback: true
+      };
+      updateAssetHealthBadge();
+      syncInspectorWithSelection();
+    } else {
+      assetStatus[item.outfitId] = {
+        state: "FAILED",
+        source: IMAGE_SOURCE_MODE,
+        naturalWidth: 0,
+        naturalHeight: 0,
+        fallback: false
+      };
+      updateAssetHealthBadge();
+      syncInspectorWithSelection();
+    }
+  };
+}
+
+function setSourceMode(mode) {
+  IMAGE_SOURCE_MODE = mode;
+  persistAppState();
+
+  document.querySelectorAll(".source-btn").forEach(btn => {
+    btn.style.background = "none";
+    btn.style.color = "var(--text-muted)";
+    btn.classList.remove("active");
+  });
+
+  const activeBtn = document.getElementById(`srcBtn${mode.charAt(0).toUpperCase() + mode.slice(1).toLowerCase()}`);
+  if (activeBtn) {
+    activeBtn.style.background = "var(--accent-purple)";
+    activeBtn.style.color = "#fff";
+    activeBtn.classList.add("active");
+  }
+
+  ScreenImageGallery.renderMainImage();
+  ScreenImageGallery.renderThumbnails();
+  update();
+  showToast(`이미지 소스 모드 변경: ${mode}`);
+}
+
+function updateAssetHealthBadge() {
+  const badge = document.getElementById("driveAssetHealthBadge");
+  if (!badge) return;
+
+  const total = outfitItems.length;
+  let loadedCount = 0;
+  let fallbackCount = 0;
+
+  outfitItems.forEach(item => {
+    const st = assetStatus[item.outfitId];
+    if (st && st.state === "LOADED") loadedCount++;
+    else if (st && st.state === "FALLBACK_LOCAL") fallbackCount++;
+  });
+
+  if (IMAGE_SOURCE_MODE === "DRIVE") {
+    if (fallbackCount > 0) {
+      badge.textContent = `REAL ASSETS: ${loadedCount}/${total} (${fallbackCount} Fallback)`;
+      badge.style.color = "var(--accent-amber)";
+      badge.style.background = "var(--accent-amber-bg)";
+    } else {
+      badge.textContent = `REAL ASSETS: ${loadedCount}/${total}`;
+      badge.style.color = "var(--accent-green)";
+      badge.style.background = "var(--accent-green-bg)";
+    }
+  } else {
+    badge.textContent = `${IMAGE_SOURCE_MODE} Mode (${total} Assets)`;
+    badge.style.color = "var(--accent-purple-light)";
+    badge.style.background = "var(--accent-purple-bg)";
+  }
+}
+
+// ── 1. 실제 사용자 업로드 코디 에셋 컬렉션 (14종 전체) ──
+const outfitItems = DRIVE_ASSET_REGISTRY;
+
+// ── 2. 공통 App State & LocalStorage 연동 ───────
+const appState = {
+  currentScreen: "HOME_UI",
+  selectedOutfitId: "outfit_01",
+  selectedOutfitIndex: 0,
+  savedOutfits: ["outfit_01", "outfit_03"]
+};
+
+// LocalStorage 복원 및 유효성 검사 (기존 잘못된 ID 자동 초기화)
+try {
+  const savedIndex = localStorage.getItem("tp_selectedOutfitIndex");
+  if (savedIndex !== null) {
+    const idx = parseInt(savedIndex, 10);
+    if (idx >= 0 && idx < outfitItems.length) {
+      appState.selectedOutfitIndex = idx;
+      appState.selectedOutfitId = outfitItems[idx].outfitId;
+    } else {
+      appState.selectedOutfitIndex = 0;
+      appState.selectedOutfitId = outfitItems[0].outfitId;
+    }
+  }
+  const savedList = localStorage.getItem("tp_savedOutfits");
+  if (savedList) appState.savedOutfits = JSON.parse(savedList);
+} catch (e) {
+  appState.selectedOutfitIndex = 0;
+  appState.selectedOutfitId = outfitItems[0].outfitId;
+}
+
+function persistAppState() {
+  try {
+    localStorage.setItem("tp_selectedOutfitIndex", appState.selectedOutfitIndex);
+    localStorage.setItem("tp_selectedOutfitId", appState.selectedOutfitId);
+    localStorage.setItem("tp_savedOutfits", JSON.stringify(appState.savedOutfits));
+    localStorage.setItem("tp_currentScreen", appState.currentScreen);
+  } catch (e) {}
+}
+
+// ── 3. 공통 Selection Engine (ScreenImageGallery) ──
+const ScreenImageGallery = {
+  loadItems: function() {
+    if (appState.currentScreen === "MY_COORDI_UI") {
+      const saved = outfitItems.filter(item => appState.savedOutfits.includes(item.outfitId));
+      return saved.length > 0 ? saved : outfitItems;
+    }
+    return outfitItems;
+  },
+
+  selectItem: function(index) {
+    const items = this.loadItems();
+    if (index < 0 || index >= items.length) return;
+    const targetItem = items[index];
+    const originalIndex = outfitItems.findIndex(o => o.outfitId === targetItem.outfitId);
+
+    appState.selectedOutfitIndex = originalIndex >= 0 ? originalIndex : index;
+    appState.selectedOutfitId = targetItem.outfitId;
+    persistAppState();
+
+    this.renderMainImage();
+    this.renderThumbnails();
+    this.scrollSelectedIntoView();
+    syncInspectorWithSelection();
+    handleUserModification();
+    update();
+  },
+
+  renderMainImage: function() {
+    const mainImgEl = document.getElementById("mainOutfitImgEl");
+    const item = outfitItems[appState.selectedOutfitIndex] || outfitItems[0];
+    if (mainImgEl) {
+      const src = resolveImageSource(item);
+      mainImgEl.setAttribute("data-fallback-attempted", "false");
+      attachImageFallback(mainImgEl, item);
+      mainImgEl.src = src;
+      mainImgEl.style.objectFit = currentConfig.imgFit || "contain";
+      mainImgEl.style.transform = `scale(${currentConfig.mainScale / 100}) translateY(${currentConfig.mainOffsetY}px)`;
+    }
+
+    // 메인 스테이지 배경 조화
+    const stage = document.getElementById("mainStageArea");
+    if (stage) {
+      stage.style.backgroundColor = currentConfig.mainBg || item.bg;
+    }
+
+    // 가격 오버레이 업데이트 (PRICE_UI)
+    if (appState.currentScreen === "PRICE_UI") {
+      this.updatePriceCard(item);
+    }
+  },
+
+  updatePriceCard: function(item) {
+    const cardTitle = document.getElementById("priceCardTitle");
+    const totalEl = document.getElementById("priceCardTotal");
+    const rowsContainer = document.getElementById("priceItemRowsContainer");
+
+    if (cardTitle) cardTitle.textContent = `${item.koreanTitle} 가격 상세`;
+    if (totalEl) totalEl.textContent = item.price;
+    if (rowsContainer && item.itemPrices) {
+      rowsContainer.innerHTML = item.itemPrices.map(ip => `
+        <div class="price-item-row">
+          <span class="price-item-name">${ip.item}</span>
+          <span class="price-item-val">${ip.price}</span>
+        </div>
+      `).join('');
+    }
+  },
+
+  renderThumbnails: function() {
+    const container = document.getElementById("thumbScrollArea");
+    if (!container) return;
+    const items = this.loadItems();
+    const c = currentConfig;
+
+    container.style.gap = `${c.thumbGap}px`;
+    container.innerHTML = "";
+
+    items.forEach((item, idx) => {
+      const isSelected = (item.outfitId === appState.selectedOutfitId);
+      const thumb = document.createElement("div");
+      thumb.className = `thumb-item ${isSelected ? "selected-thumb" : ""}`;
+      thumb.setAttribute("data-thumb-item", "true");
+      thumb.setAttribute("data-outfit-id", item.outfitId);
+      thumb.setAttribute("title", `${item.koreanTitle} (${item.name})`);
+      thumb.style.cssText = `
+        width: ${c.thumbW}px;
+        height: ${c.thumbH}px;
+        border-radius: ${c.thumbR}px;
+        background: ${item.bg};
+        border: ${c.selBorder}px solid ${isSelected ? c.selColor : "transparent"};
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      `;
+
+      thumb.onclick = (e) => {
+        e.stopPropagation();
+        ScreenImageGallery.selectItem(idx);
+      };
+
+      const img = document.createElement("img");
+      img.className = "thumb-img";
+      const src = resolveImageSource(item);
+      img.setAttribute("data-fallback-attempted", "false");
+      attachImageFallback(img, item);
+      img.src = src;
+      img.alt = item.name;
+      img.style.objectFit = c.imgFit || "contain";
+      img.style.transform = `scale(${c.imgScale / 100}) translateY(${c.imgOffsetY}px)`;
+
+      thumb.appendChild(img);
+      container.appendChild(thumb);
+    });
+
+    const wrapper = document.getElementById("thumbStripWrapper");
+    if (wrapper) {
+      wrapper.style.padding = `${c.stripPadV}px ${c.stripPadH}px`;
+      wrapper.style.background = c.stripBg;
+    }
+  },
+
+  scrollSelectedIntoView: function() {
+    const selectedThumb = document.querySelector(".thumb-item.selected-thumb");
+    if (selectedThumb) {
+      selectedThumb.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }
+};
+
+// ── 4. 불변 베이스라인 & 프리셋 설정 ─────────────
+const BASELINE_HOME_UI = {
+  refW: 379, refH: 877, safeTop: 44, safeBottom: 34,
+  greetingText: '늦은 시간이네요', headerFontSize: 20,
+  charTabX: 0, charTabY: 0, priceTabX: 84, priceTabY: 0, tabRadius: 20,
+  mainScale: 100, mainOffsetY: 0, mainBg: '#f0ede8',
+  modeBtnX: 16, modeBtnY: 140,
+  sideY: 180, sideRight: 12, sideSize: 44,
+  showSaveBtn: true, showSettingsBtn: true, showPlayBtn: true,
+  recRight: 14, recBottom: 14, recSize: 44,
+  stripPadV: 8, stripPadH: 12, stripBg: '#ffffff',
+  thumbW: 72, thumbH: 90, thumbR: 8, thumbGap: 6,
+  selColor: '#7c5cbf', selBorder: 2,
+  imgFit: 'cover', imgScale: 200, imgOffsetY: 0,
+  navH: 64
+};
+
+const HOME_UI_PRESETS = {
+  CURRENT_APP: Object.assign({}, BASELINE_HOME_UI),
+  FULL_BODY_THUMBNAILS: Object.assign({}, BASELINE_HOME_UI, {
+    thumbW: 74, thumbH: 146, thumbR: 12, thumbGap: 16,
+    stripPadV: 4, stripPadH: 18, stripBg: '#ffffff',
+    selColor: '#7d5cc0', selBorder: 2,
+    imgFit: 'contain', imgScale: 100, imgOffsetY: 0
+  }),
+  COMPACT: Object.assign({}, BASELINE_HOME_UI, {
+    thumbW: 60, thumbH: 100, thumbR: 8, thumbGap: 8,
+    stripPadV: 4, stripPadH: 12, stripBg: '#ffffff',
+    selColor: '#7d5cc0', selBorder: 2,
+    imgFit: 'contain', imgScale: 100, imgOffsetY: 0
+  }),
+  LARGE_THUMBNAILS: Object.assign({}, BASELINE_HOME_UI, {
+    thumbW: 84, thumbH: 160, thumbR: 14, thumbGap: 18,
+    stripPadV: 6, stripPadH: 18, stripBg: '#ffffff',
+    selColor: '#7d5cc0', selBorder: 2,
+    imgFit: 'contain', imgScale: 100, imgOffsetY: 0
+  })
+};
+
+let currentConfig = Object.assign({}, HOME_UI_PRESETS.FULL_BODY_THUMBNAILS);
+
+// ── 5. 버전 및 승인 상태 ─────────────────────────
+let specVersionMajor = 2;
+let isApproved = false;
+let approvedTimestamp = null;
+let currentSpecId = 'HOME_UI_V002';
+let versionHistory = [];
+let compareMode = false;
+let selectedComponentName = 'Main Image Area';
+
+// ── 6. 슬라이더 & 숫자 입력 동기화 ───────────────
+function syncVal(key, fromNum = false) {
+  const rangeEl = document.getElementById(key);
+  const numEl = document.getElementById(key + 'Num');
+  if (!rangeEl || !numEl) return;
+
+  if (fromNum) {
+    let val = parseFloat(numEl.value);
+    if (isNaN(val)) val = 0;
+    if (val < parseFloat(rangeEl.min)) val = parseFloat(rangeEl.min);
+    if (val > parseFloat(rangeEl.max)) val = parseFloat(rangeEl.max);
+    rangeEl.value = val;
+    currentConfig[key] = val;
+  } else {
+    numEl.value = rangeEl.value;
+    currentConfig[key] = parseFloat(rangeEl.value);
+  }
+  handleUserModification();
+  update();
+}
+
+function updateStateFromInputs() {
+  const numKeys = [
+    'refW', 'refH', 'safeTop', 'safeBottom',
+    'headerFontSize', 'tabRadius',
+    'mainScale', 'mainOffsetY',
+    'modeBtnX', 'modeBtnY',
+    'sideY', 'sideRight', 'sideSize',
+    'recRight', 'recBottom', 'recSize',
+    'stripPadV', 'stripPadH',
+    'thumbW', 'thumbH', 'thumbR', 'thumbGap', 'selBorder',
+    'imgScale', 'imgOffsetY',
+    'charTabX', 'charTabY', 'priceTabX', 'priceTabY',
+    'navH'
+  ];
+  numKeys.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) currentConfig[k] = parseFloat(el.value);
+  });
+
+  const greetingEl = document.getElementById('greetingText');
+  if (greetingEl) currentConfig.greetingText = greetingEl.value;
+  const mainBgEl = document.getElementById('mainBg');
+  if (mainBgEl) currentConfig.mainBg = mainBgEl.value;
+  const stripBgEl = document.getElementById('stripBg');
+  if (stripBgEl) currentConfig.stripBg = stripBgEl.value;
+  const selColorEl = document.getElementById('selColor');
+  if (selColorEl) currentConfig.selColor = selColorEl.value;
+  const imgFitEl = document.getElementById('imgFit');
+  if (imgFitEl) currentConfig.imgFit = imgFitEl.value;
+
+  currentConfig.showSaveBtn = document.getElementById('showSaveBtn').checked;
+  currentConfig.showSettingsBtn = document.getElementById('showSettingsBtn').checked;
+  currentConfig.showPlayBtn = document.getElementById('showPlayBtn').checked;
+}
+
+// ── 7. 화면 전환 (Screen Navigation) ────────────
+function switchScreen(screenId) {
+  appState.currentScreen = screenId;
+  persistAppState();
+
+  document.querySelectorAll(".screen-tab").forEach(tab => tab.classList.remove("active"));
+  const activeTab = document.getElementById(`tab_${screenId}`);
+  if (activeTab) activeTab.classList.add("active");
+
+  const headerTitle = document.getElementById("screenTitleHeader");
+  if (headerTitle) headerTitle.textContent = `${screenId} Designer`;
+
+  const priceOverlay = document.getElementById("priceOverlayCard");
+  const charTab = document.getElementById("dragCharTab");
+  const priceTab = document.getElementById("dragPriceTab");
+  const navHome = document.getElementById("navItemHome");
+  const navMyCoordi = document.getElementById("navItemMyCoordi");
+
+  // 화면별 UI 가시성 및 모드 분기
+  if (screenId === "PRICE_UI") {
+    if (priceOverlay) priceOverlay.style.display = "block";
+    if (charTab) { charTab.style.background = "#e8e6f0"; charTab.style.color = "#666"; }
+    if (priceTab) { priceTab.style.background = "#7c5cbf"; priceTab.style.color = "#fff"; }
+  } else {
+    if (priceOverlay) priceOverlay.style.display = "none";
+    if (charTab) { charTab.style.background = "#7c5cbf"; charTab.style.color = "#fff"; }
+    if (priceTab) { priceTab.style.background = "#e8e6f0"; priceTab.style.color = "#666"; }
+  }
+
+  if (screenId === "MY_COORDI_UI") {
+    if (navHome) navHome.classList.remove("active");
+    if (navMyCoordi) navMyCoordi.classList.add("active");
+  } else {
+    if (navHome) navHome.classList.add("active");
+    if (navMyCoordi) navMyCoordi.classList.remove("active");
+  }
+
+  // 갤러리 리렌더
+  ScreenImageGallery.renderMainImage();
+  ScreenImageGallery.renderThumbnails();
+  update();
+}
+
+function handleModeTabClick(type) {
+  if (type === 'price') {
+    switchScreen('PRICE_UI');
+  } else {
+    switchScreen('HOME_UI');
+  }
+}
+
+function showToast(msg) {
+  let toast = document.getElementById("studioToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "studioToast";
+    toast.style.cssText = "position:absolute;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.3);pointer-events:none;transition:opacity 0.3s;";
+    document.getElementById("appScreen").appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = "1";
+  setTimeout(() => { toast.style.opacity = "0"; }, 2500);
+}
+
+function handleSaveAction(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const currentId = appState.selectedOutfitId;
+  const currentTitle = outfitItems[appState.selectedOutfitIndex]?.koreanTitle || "선택된 코디";
+  if (!appState.savedOutfits.includes(currentId)) {
+    appState.savedOutfits.push(currentId);
+    persistAppState();
+    showToast(`[내 코디]에 저장되었습니다: ${currentTitle}`);
+  } else {
+    showToast(`이미 저장된 코디입니다: ${currentTitle}`);
+  }
+}
+
+// ── 8. 메인 실시간 렌더링 루프 ─────────────────
+function update() {
+  const startTime = performance.now();
+  updateStateFromInputs();
+
+  const c = currentConfig;
+
+  // 정규화 % 계산
+  const wNorm = ((c.thumbW / c.refW) * 100).toFixed(2);
+  const hNorm = ((c.thumbH / c.refH) * 100).toFixed(2);
+  const wNormEl = document.getElementById('thumbWNorm');
+  const hNormEl = document.getElementById('thumbHNorm');
+  if (wNormEl) wNormEl.textContent = parseFloat(wNorm).toFixed(1) + '%';
+  if (hNormEl) hNormEl.textContent = parseFloat(hNorm).toFixed(1) + '%';
+
+  // 폰 섀시 뷰포트 비율 & Safe Area
+  const phoneChassis = document.getElementById('phoneChassis');
+  if (phoneChassis) {
+    phoneChassis.style.aspectRatio = `${c.refW} / ${c.refH}`;
+  }
+  const appHeader = document.getElementById('appHeaderArea');
+  if (appHeader) {
+    appHeader.style.paddingTop = `${c.safeTop}px`;
+  }
+  const appNav = document.getElementById('appNavBar');
+  if (appNav) {
+    appNav.style.paddingBottom = `${c.safeBottom}px`;
+    appNav.style.height = `${c.navH}px`;
+  }
+
+  // 헤더 인사말
+  const greetingDisplay = document.getElementById('greetingDisplay');
+  if (greetingDisplay) {
+    greetingDisplay.textContent = c.greetingText;
+    greetingDisplay.style.fontSize = `${c.headerFontSize}px`;
+  }
+
+  // 상단 탭 버튼
+  const charTab = document.getElementById('dragCharTab');
+  if (charTab) {
+    charTab.style.left = `${c.charTabX}px`;
+    charTab.style.top = `${c.charTabY}px`;
+    charTab.style.borderRadius = `${c.tabRadius}px`;
+  }
+  const priceTab = document.getElementById('dragPriceTab');
+  if (priceTab) {
+    priceTab.style.left = `${c.priceTabX}px`;
+    priceTab.style.top = `${c.priceTabY}px`;
+    priceTab.style.borderRadius = `${c.tabRadius}px`;
+  }
+
+  // 캐릭터 모드 버튼
+  const modeBtn = document.getElementById('dragCharModeBtn');
+  if (modeBtn) {
+    modeBtn.style.left = `${c.modeBtnX}px`;
+    modeBtn.style.top = `${c.modeBtnY}px`;
+  }
+
+  // 사이드 버튼 & 가시성
+  const sideBtns = document.getElementById('dragSideBtns');
+  if (sideBtns) {
+    sideBtns.style.top = `${c.sideY}px`;
+    sideBtns.style.right = `${c.sideRight}px`;
+    document.getElementById('sideBtnSave').style.display = c.showSaveBtn ? 'flex' : 'none';
+    document.getElementById('sideBtnSettings').style.display = c.showSettingsBtn ? 'flex' : 'none';
+    document.getElementById('sideBtnPlay').style.display = c.showPlayBtn ? 'flex' : 'none';
+    sideBtns.querySelectorAll('.side-btn').forEach(btn => {
+      btn.style.width = `${c.sideSize}px`;
+      btn.style.height = `${c.sideSize}px`;
+    });
+  }
+
+  // 추천 버튼
+  const recBtn = document.getElementById('dragRecBtn');
+  if (recBtn) {
+    recBtn.style.right = `${c.recRight}px`;
+    recBtn.style.bottom = `${c.recBottom}px`;
+    recBtn.style.width = `${c.recSize}px`;
+    recBtn.style.height = `${c.recSize}px`;
+  }
+
+  // 갤러리 렌더링
+  ScreenImageGallery.renderMainImage();
+  ScreenImageGallery.renderThumbnails();
+
+  // 인스펙터 정보 갱신
+  syncInspectorWithSelection();
+
+  // 레이아웃 검증 & 충돌 감지
+  runLayoutValidation();
+
+  // 출력 코드 & JSON Spec & Codex Prompt 생성
+  generateUnityCode();
+  generateJsonSpec();
+  generateCodexPrompt();
+  generateDiffSummary();
+
+  const elapsed = (performance.now() - startTime).toFixed(1);
+  const currentOutfit = outfitItems[appState.selectedOutfitIndex] || outfitItems[0];
+  const footerText = document.getElementById('mainPhoneFooterText');
+  if (footerText) {
+    footerText.textContent = `${currentOutfit.koreanTitle} (${currentOutfit.sourceFileName}) · ${c.thumbW}×${c.thumbH}px · Latency: ${elapsed}ms`;
+  }
+}
+
+// ── 9. 인스펙터 연동 ───────────────────────────
+function selectComponent(compName) {
+  selectedComponentName = compName;
+  document.querySelectorAll('.selected-element').forEach(el => el.classList.remove('selected-element'));
+
+  let target = null;
+  if (compName.includes('Character Tab')) target = document.getElementById('dragCharTab');
+  else if (compName.includes('Price Tab')) target = document.getElementById('dragPriceTab');
+  else if (compName.includes('Character Mode')) target = document.getElementById('dragCharModeBtn');
+  else if (compName.includes('Side Buttons')) target = document.getElementById('dragSideBtns');
+  else if (compName.includes('Recommend Button')) target = document.getElementById('dragRecBtn');
+  else if (compName.includes('Thumbnail')) target = document.getElementById('thumbStripWrapper');
+  else if (compName.includes('Bottom Nav')) target = document.getElementById('appNavBar');
+  else if (compName.includes('Header')) target = document.getElementById('appHeaderArea');
+  else if (compName.includes('Main Image')) target = document.getElementById('mainOutfitImgWrap');
+
+  if (target) target.classList.add('selected-element');
+  syncInspectorWithSelection();
+}
+
+function syncInspectorWithSelection() {
+  const c = currentConfig;
+  const currentOutfit = outfitItems[appState.selectedOutfitIndex] || outfitItems[0];
+
+  const nameEl = document.getElementById('inspectName');
+  const anchorEl = document.getElementById('inspectAnchor');
+  const srcModeEl = document.getElementById('inspectSourceMode');
+  const assetIdEl = document.getElementById('inspectAssetId');
+  const driveFileIdEl = document.getElementById('inspectDriveFileId');
+  const sourceEl = document.getElementById('inspectSource');
+  const loadStateEl = document.getElementById('inspectLoadState');
+  const naturalSizeEl = document.getElementById('inspectNaturalSize');
+  const fallbackEl = document.getElementById('inspectFallback');
+  const fitAlignEl = document.getElementById('inspectFitAlign');
+
+  if (!nameEl) return;
+  nameEl.textContent = selectedComponentName;
+  if (srcModeEl) srcModeEl.textContent = IMAGE_SOURCE_MODE;
+  if (assetIdEl) assetIdEl.textContent = `${currentOutfit.outfitId} (${currentOutfit.sourceFileName})`;
+  if (driveFileIdEl) driveFileIdEl.textContent = currentOutfit.driveFileId || 'N/A';
+  if (sourceEl) sourceEl.textContent = IMAGE_SOURCE_MODE === 'DRIVE' ? 'Google Drive (Remote)' : (IMAGE_SOURCE_MODE === 'LOCAL' ? './assets/outfits/' : 'Embedded');
+
+  const st = assetStatus[currentOutfit.outfitId] || { state: 'LOADED', naturalWidth: 379, naturalHeight: 877, fallback: false };
+  if (loadStateEl) {
+    loadStateEl.textContent = st.state;
+    loadStateEl.style.color = st.state === 'LOADED' ? 'var(--accent-green)' : (st.state === 'FALLBACK_LOCAL' ? 'var(--accent-amber)' : 'var(--accent-red)');
+  }
+  if (naturalSizeEl) naturalSizeEl.textContent = st.naturalWidth > 0 ? `${st.naturalWidth} × ${st.naturalHeight}` : `${c.refW} × ${c.refH}`;
+  if (fallbackEl) fallbackEl.textContent = st.fallback ? 'YES (Local)' : 'NO';
+  if (fitAlignEl) fitAlignEl.textContent = `${c.imgFit} / btm`;
+
+  if (selectedComponentName.includes('Character Tab') || selectedComponentName.includes('Price Tab') || selectedComponentName.includes('Character Mode')) {
+    anchorEl.textContent = 'TOP_LEFT';
+  } else if (selectedComponentName.includes('Side Buttons')) {
+    anchorEl.textContent = 'MIDDLE_RIGHT';
+  } else if (selectedComponentName.includes('Recommend Button')) {
+    anchorEl.textContent = 'BOTTOM_RIGHT';
+  } else {
+    anchorEl.textContent = 'BOTTOM_CENTER';
+  }
+}
+
+// ── 10. 디바이스 프리셋 변경 ─────────────────────
+function changeDevicePreset(presetVal) {
+  const [w, h] = presetVal.split('x').map(Number);
+  currentConfig.refW = w;
+  currentConfig.refH = h;
+  document.getElementById('refW').value = w;
+  document.getElementById('refWNum').value = w;
+  document.getElementById('refH').value = h;
+  document.getElementById('refHNum').value = h;
+  update();
+}
+
+// ── 11. 드래그 조작 시스템 (Pointer Events) ───────
+function setupDraggables() {
+  const elements = [
+    { id: 'dragCharTab', xProp: 'charTabX', yProp: 'charTabY', clampX: [-20, 260], clampY: [-10, 80] },
+    { id: 'dragPriceTab', xProp: 'priceTabX', yProp: 'priceTabY', clampX: [40, 320], clampY: [-10, 80] },
+    { id: 'dragCharModeBtn', xProp: 'modeBtnX', yProp: 'modeBtnY', clampX: [0, 280], clampY: [80, 450] },
+    { id: 'dragSideBtns', xProp: 'sideRight', yProp: 'sideY', isRightAnchor: true, clampX: [4, 60], clampY: [40, 500] },
+    { id: 'dragRecBtn', xProp: 'recRight', yProp: 'recBottom', isRightBottomAnchor: true, clampX: [4, 60], clampY: [4, 60] }
+  ];
+
+  elements.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (!el) return;
+
+    let startX = 0, startY = 0;
+    let initialValX = 0, initialValY = 0;
+    let dragging = false;
+
+    el.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      el.setPointerCapture(e.pointerId);
+      startX = e.clientX;
+      startY = e.clientY;
+      initialValX = currentConfig[item.xProp];
+      initialValY = currentConfig[item.yProp];
+      e.stopPropagation();
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (item.isRightBottomAnchor) {
+        let newX = initialValX - dx;
+        let newY = initialValY - dy;
+        newX = Math.max(item.clampX[0], Math.min(item.clampX[1], Math.round(newX)));
+        newY = Math.max(item.clampY[0], Math.min(item.clampY[1], Math.round(newY)));
+        currentConfig[item.xProp] = newX;
+        currentConfig[item.yProp] = newY;
+        const xInput = document.getElementById(item.xProp);
+        const yInput = document.getElementById(item.yProp);
+        if (xInput) xInput.value = newX;
+        if (yInput) yInput.value = newY;
+      } else if (item.isRightAnchor) {
+        let newX = initialValX - dx;
+        let newY = initialValY + dy;
+        newX = Math.max(item.clampX[0], Math.min(item.clampX[1], Math.round(newX)));
+        newY = Math.max(item.clampY[0], Math.min(item.clampY[1], Math.round(newY)));
+        currentConfig[item.xProp] = newX;
+        currentConfig[item.yProp] = newY;
+        const xInput = document.getElementById(item.xProp);
+        const yInput = document.getElementById(item.yProp);
+        const yRange = document.getElementById(item.yProp + 'Num');
+        if (xInput) xInput.value = newX;
+        if (yInput) yInput.value = newY;
+        if (yRange) yRange.value = newY;
+      } else {
+        let newX = initialValX + dx;
+        let newY = initialValY + dy;
+        newX = Math.max(item.clampX[0], Math.min(item.clampX[1], Math.round(newX)));
+        newY = Math.max(item.clampY[0], Math.min(item.clampY[1], Math.round(newY)));
+        currentConfig[item.xProp] = newX;
+        currentConfig[item.yProp] = newY;
+        const xInput = document.getElementById(item.xProp);
+        const yInput = document.getElementById(item.yProp);
+        if (xInput) xInput.value = newX;
+        if (yInput) yInput.value = newY;
+      }
+      handleUserModification();
+      update();
+    });
+
+    el.addEventListener('pointerup', (e) => {
+      if (dragging) {
+        dragging = false;
+        try { el.releasePointerCapture(e.pointerId); } catch(err){}
+      }
+    });
+    el.addEventListener('pointercancel', () => { dragging = false; });
+  });
+}
+
+// ── 12. 레이아웃 검증 & 기하학적 충돌 감지 ─────
+function runLayoutValidation() {
+  const c = currentConfig;
+  const box = document.getElementById('validationBox');
+  if (!box) return;
+
+  const warnings = [];
+  let qualityStatus = 'LIKELY_FULL_BODY_VISIBLE';
+
+  if (c.imgFit === 'cover') {
+    warnings.push({
+      type: 'warn',
+      icon: '⚠️',
+      text: 'THUMBNAIL_CROP_RISK: Cover 모드로 인해 전신 코디가 잘릴 수 있습니다.'
+    });
+    qualityStatus = 'POSSIBLE_CROP';
+  }
+
+  if (c.thumbH < 100) {
+    warnings.push({
+      type: 'warn',
+      icon: '⚠️',
+      text: `FULL_BODY_READABILITY_RISK: 썸네일 높이(${c.thumbH}px)가 100px 미만으로 전신 시인성이 낮습니다.`
+    });
+    qualityStatus = 'POSSIBLE_CROP';
+  }
+
+  if ((c.stripPadV * 2) > 30) {
+    warnings.push({
+      type: 'warn',
+      icon: '⚠️',
+      text: `VERTICAL_SPACE_WASTE: 상하 패딩 합계(${c.stripPadV * 2}px)가 커서 낭비되는 세로 여백이 발생합니다.`
+    });
+  }
+
+  if (c.recBottom < (c.stripPadV * 2 + 10)) {
+    warnings.push({
+      type: 'warn',
+      icon: '⚠️',
+      text: 'COLLISION_WARNING: 추천 버튼이 썸네일 스트립 영역과 겹칠 위험이 있습니다.'
+    });
+  }
+
+  if (warnings.length === 0) {
+    warnings.push({
+      type: 'pass',
+      icon: '✓',
+      text: '전신 가시성 완벽: 10종 실물 코디 연동, Contain 피팅, 1:2 최적 종횡비 적용됨'
+    });
+  }
+
+  let html = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <span style="font-size:11px;color:var(--text-muted);font-weight:600;">전신 시인성 상태</span>
+      <span class="quality-badge ${qualityStatus === 'LIKELY_FULL_BODY_VISIBLE' ? 'good' : 'risk'}">
+        ${qualityStatus === 'LIKELY_FULL_BODY_VISIBLE' ? '● LIKELY_FULL_BODY_VISIBLE' : '▲ POSSIBLE_CROP'}
+      </span>
+    </div>
+  `;
+
+  warnings.forEach(w => {
+    html += `
+      <div class="warning-pill ${w.type}">
+        <span>${w.icon}</span>
+        <span>${w.text}</span>
+      </div>
+    `;
+  });
+
+  box.innerHTML = html;
+}
+
+// ── 13. 버전 관리 & 사용자 수정 감지 ───────────
+function handleUserModification() {
+  if (isApproved) {
+    isApproved = false;
+    specVersionMajor += 1;
+    const vNum = String(specVersionMajor).padStart(3, '0');
+    currentSpecId = `HOME_UI_V${vNum}_DRAFT`;
+
+    const badge = document.getElementById('approvalBadge');
+    const vTag = document.getElementById('specVersionBadge');
+    const card = document.getElementById('approvalCard');
+    const btn = document.getElementById('approveBtn');
+
+    if (badge) {
+      badge.textContent = `${currentSpecId}`;
+      badge.className = 'approval-status-badge draft';
+    }
+    if (vTag) vTag.textContent = `${currentSpecId}`;
+    if (card) card.classList.remove('approved');
+    if (btn) {
+      btn.textContent = `✓ HOME UI V${vNum} 승인`;
+      btn.disabled = false;
+    }
+  }
+}
+
+function approveCurrentSpec() {
+  isApproved = true;
+  approvedTimestamp = new Date().toISOString();
+  const vNum = String(specVersionMajor).padStart(3, '0');
+  currentSpecId = `HOME_UI_V${vNum}`;
+
+  versionHistory.push({
+    specId: currentSpecId,
+    timestamp: approvedTimestamp,
+    config: JSON.parse(JSON.stringify(currentConfig))
+  });
+
+  const badge = document.getElementById('approvalBadge');
+  const vTag = document.getElementById('specVersionBadge');
+  const card = document.getElementById('approvalCard');
+  const info = document.getElementById('approvalInfo');
+  const btn = document.getElementById('approveBtn');
+
+  if (badge) {
+    badge.textContent = `${currentSpecId} (APPROVED)`;
+    badge.className = 'approval-status-badge approved';
+  }
+  if (vTag) vTag.textContent = `${currentSpecId} (APPROVED)`;
+  if (card) card.classList.add('approved');
+  if (info) {
+    info.innerHTML = `승인 완료: <strong>${currentSpecId}</strong> (${new Date().toLocaleString()})`;
+  }
+  if (btn) {
+    btn.textContent = `✓ ${currentSpecId} 승인 완료`;
+    btn.disabled = true;
+  }
+
+  update();
+}
+
+// ── 14. Unity uGUI Reference Code 생성기 ───────
+function generateUnityCode() {
+  const c = currentConfig;
+  const hex = c.selColor;
+  const r = (parseInt(hex.slice(1,3),16)/255).toFixed(2);
+  const g = (parseInt(hex.slice(3,5),16)/255).toFixed(2);
+  const b = (parseInt(hex.slice(5,7),16)/255).toFixed(2);
+
+  const isContain = (c.imgFit === 'contain');
+  const currentOutfit = outfitItems[appState.selectedOutfitIndex] || outfitItems[0];
+
+  const code = `// ============================================================
+// TODAYPICK HOME_UI - UNITY UGUI REFERENCE CODE (v2)
+// Screen: ${appState.currentScreen} | Spec: ${currentSpecId} | Status: ${isApproved ? 'APPROVED' : 'DRAFT'}
+// Selected Asset: ${currentOutfit.id}.png (${currentOutfit.koreanTitle})
+// NOTE: THIS IS IMPLEMENTATION REFERENCE CODE.
+// Codex will map these parameters to actual Unity project structure.
+// ============================================================
+
+using UnityEngine;
+using UnityEngine.UI;
+
+public class TodayOutfitHomeUIConfig : MonoBehaviour
+{
+    // // HOME_UI
+    // // Reference Resolution
+    public Vector2 referenceResolution = new Vector2(${c.refW}f, ${c.refH}f);
+    public RectOffset safeAreaInsets = new RectOffset(0, 0, ${c.safeTop}, ${c.safeBottom});
+
+    [Header("Header & Mode Tabs")]
+    public Text greetingText;
+    public RectTransform charTabRect;
+    public RectTransform priceTabRect;
+
+    [Header("Character Area (Main Image)")]
+    public Image mainCharacterImage;
+    public AspectRatioFitter mainAspectFitter;
+    public RectTransform mainCharacterRect;
+
+    [Header("Character Mode")]
+    public RectTransform charModeButtonRect;
+
+    [Header("Right Buttons")]
+    public RectTransform sideButtonGroupRect;
+    public GameObject saveButtonObj;
+    public GameObject settingsButtonObj;
+    public GameObject playButtonObj;
+
+    [Header("Recommend")]
+    public RectTransform recommendButtonRect;
+
+    [Header("Thumbnail Strip (Horizontal Carousel)")]
+    public ScrollRect thumbnailScrollRect;
+    public RectTransform thumbnailStripRect;
+    public HorizontalLayoutGroup stripLayoutGroup;
+
+    [Header("Thumbnail Item")]
+    public RectTransform thumbnailPrefab;
+    public Outline selectedOutline;
+
+    [Header("Thumbnail Character Image")]
+    public Image thumbnailImage;
+    public AspectRatioFitter thumbnailAspectFitter;
+
+    [Header("Bottom Navigation")]
+    public RectTransform bottomNavBarRect;
+
+    public void ApplyApprovedSpec()
+    {
+        // // Header
+        if (greetingText != null)
+        {
+            greetingText.text = "${c.greetingText}";
+            greetingText.fontSize = ${c.headerFontSize};
+        }
+
+        // // Tabs
+        if (charTabRect != null) charTabRect.anchoredPosition = new Vector2(${c.charTabX}f, ${c.charTabY}f);
+        if (priceTabRect != null) priceTabRect.anchoredPosition = new Vector2(${c.priceTabX}f, ${c.priceTabY}f);
+
+        // // Main Character Image
+        if (mainCharacterImage != null)
+        {
+            mainCharacterImage.preserveAspect = ${isContain ? 'true' : 'false'};
+        }
+        if (mainCharacterRect != null)
+        {
+            mainCharacterRect.localScale = new Vector3(${c.mainScale/100}f, ${c.mainScale/100}f, 1f);
+            mainCharacterRect.anchoredPosition = new Vector2(0f, ${c.mainOffsetY}f);
+        }
+        if (mainAspectFitter != null)
+        {
+            mainAspectFitter.aspectMode = AspectRatioFitter.AspectMode.${isContain ? 'FitInParent' : 'EnvelopeParent'};
+        }
+
+        // // Character Mode
+        if (charModeButtonRect != null)
+        {
+            charModeButtonRect.anchoredPosition = new Vector2(${c.modeBtnX}f, ${c.modeBtnY}f);
+        }
+
+        // // Right Buttons
+        if (sideButtonGroupRect != null)
+        {
+            sideButtonGroupRect.anchorMin = new Vector2(1f, 0.5f);
+            sideButtonGroupRect.anchorMax = new Vector2(1f, 0.5f);
+            sideButtonGroupRect.pivot = new Vector2(1f, 0.5f);
+            sideButtonGroupRect.anchoredPosition = new Vector2(-${c.sideRight}f, ${c.sideY}f);
+        }
+        if (saveButtonObj != null) saveButtonObj.SetActive(${c.showSaveBtn ? 'true' : 'false'});
+        if (settingsButtonObj != null) settingsButtonObj.SetActive(${c.showSettingsBtn ? 'true' : 'false'});
+        if (playButtonObj != null) playButtonObj.SetActive(${c.showPlayBtn ? 'true' : 'false'});
+
+        // // Recommend
+        if (recommendButtonRect != null)
+        {
+            recommendButtonRect.anchorMin = new Vector2(1f, 0f);
+            recommendButtonRect.anchorMax = new Vector2(1f, 0f);
+            recommendButtonRect.pivot = new Vector2(1f, 0f);
+            recommendButtonRect.anchoredPosition = new Vector2(-${c.recRight}f, ${c.recBottom}f);
+            recommendButtonRect.sizeDelta = new Vector2(${c.recSize}f, ${c.recSize}f);
+        }
+
+        // // Thumbnail Strip
+        if (stripLayoutGroup != null)
+        {
+            stripLayoutGroup.spacing = ${c.thumbGap}f;
+            stripLayoutGroup.padding = new RectOffset(${c.stripPadH}, ${c.stripPadH}, ${c.stripPadV}, ${c.stripPadV});
+            stripLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
+        }
+
+        // // Thumbnail Item
+        if (thumbnailPrefab != null)
+        {
+            thumbnailPrefab.sizeDelta = new Vector2(${c.thumbW}f, ${c.thumbH}f);
+        }
+        if (selectedOutline != null)
+        {
+            selectedOutline.effectColor = new Color(${r}f, ${g}f, ${b}f, 1f);
+            selectedOutline.effectDistance = new Vector2(${c.selBorder}f, -${c.selBorder}f);
+        }
+
+        // // Thumbnail Character Image
+        if (thumbnailImage != null)
+        {
+            thumbnailImage.preserveAspect = ${isContain ? 'true' : 'false'};
+        }
+        if (thumbnailAspectFitter != null)
+        {
+            thumbnailAspectFitter.aspectMode = AspectRatioFitter.AspectMode.${isContain ? 'FitInParent' : 'EnvelopeParent'};
+        }
+
+        // // Bottom Navigation
+        if (bottomNavBarRect != null)
+        {
+            bottomNavBarRect.sizeDelta = new Vector2(bottomNavBarRect.sizeDelta.x, ${c.navH}f);
+        }
+    }
+}`;
+
+  const box = document.getElementById('unityCodeBox');
+  if (box) box.textContent = code;
+}
+
+// ── 15. JSON Spec 생성기 ─────────────────────────
+function generateJsonSpec() {
+  const c = currentConfig;
+  const currentOutfit = outfitItems[appState.selectedOutfitIndex] || outfitItems[0];
+  const spec = {
+    schemaVersion: 1,
+    specId: currentSpecId,
+    screen: appState.currentScreen,
+    status: isApproved ? "APPROVED" : "DRAFT",
+    approvedAt: approvedTimestamp,
+    imageSource: {
+      mode: IMAGE_SOURCE_MODE,
+      provider: "GOOGLE_DRIVE",
+      folderId: "1Rba_mwvReCrPHYoR4fcS84kONe1bEN__",
+      assetType: "REAL_USER_UPLOAD",
+      driveUrlTemplate: DRIVE_URL_TEMPLATE
+    },
+    imageGallery: {
+      selectedOutfitId: currentOutfit.outfitId,
+      sourceFileName: currentOutfit.sourceFileName,
+      selectedIndex: appState.selectedOutfitIndex,
+      selectedName: currentOutfit.koreanTitle,
+      driveFileId: currentOutfit.driveFileId,
+      resolvedSrc: resolveImageSource(currentOutfit),
+      mainFit: c.imgFit,
+      mainAlign: "bottom-center",
+      thumbnail: {
+        width: c.thumbW,
+        height: c.thumbH,
+        gap: c.thumbGap,
+        fit: c.imgFit,
+        selectedBorderColor: c.selColor,
+        selectedBorderWidth: c.selBorder
+      }
+    },
+    referenceResolution: {
+      width: c.refW,
+      height: c.refH,
+      aspectRatio: `${c.refW}:${c.refH}`
+    },
+    safeArea: {
+      top: c.safeTop,
+      bottom: c.safeBottom
+    },
+    components: {
+      header: {
+        id: "comp_header",
+        type: "Header",
+        greetingText: c.greetingText,
+        fontSize: c.headerFontSize,
+        safeAreaTopInset: c.safeTop
+      },
+      modeTabs: {
+        id: "comp_mode_tabs",
+        type: "ModeTabs",
+        characterTab: {
+          xPx: c.charTabX,
+          yPx: c.charTabY,
+          widthPx: 64,
+          heightPx: 32,
+          xPercent: parseFloat((c.charTabX / c.refW * 100).toFixed(2)),
+          yPercent: parseFloat((c.charTabY / c.refH * 100).toFixed(2)),
+          anchor: "TOP_LEFT",
+          pivot: [0, 1]
+        },
+        priceTab: {
+          xPx: c.priceTabX,
+          yPx: c.priceTabY,
+          widthPx: 52,
+          heightPx: 32,
+          xPercent: parseFloat((c.priceTabX / c.refW * 100).toFixed(2)),
+          yPercent: parseFloat((c.priceTabY / c.refH * 100).toFixed(2)),
+          anchor: "TOP_LEFT",
+          pivot: [0, 1]
+        },
+        cornerRadius: c.tabRadius
+      },
+      mainLookArea: {
+        id: "comp_main_look",
+        type: "MainLookArea",
+        scalePercent: c.mainScale,
+        offsetYPx: c.mainOffsetY,
+        backgroundColor: c.mainBg,
+        activeAssetId: currentOutfit.id,
+        activeAssetSrc: currentOutfit.src,
+        fit: c.imgFit,
+        align: "bottom-center"
+      },
+      characterModeButton: {
+        id: "comp_char_mode_btn",
+        type: "CharacterModeButton",
+        xPx: c.modeBtnX,
+        yPx: c.modeBtnY,
+        widthPx: 68,
+        heightPx: 28,
+        anchor: "TOP_LEFT",
+        pivot: [0, 1]
+      },
+      rightActionButtons: {
+        id: "comp_right_actions",
+        type: "RightActionButtons",
+        offsetRightPx: c.sideRight,
+        offsetYPx: c.sideY,
+        buttonSizePx: c.sideSize,
+        gapPx: 8,
+        anchor: "MIDDLE_RIGHT",
+        pivot: [1, 0.5],
+        visibility: {
+          save: c.showSaveBtn,
+          settings: c.showSettingsBtn,
+          play: c.showPlayBtn
+        }
+      },
+      recommendButton: {
+        id: "comp_recommend_btn",
+        type: "RecommendButton",
+        offsetRightPx: c.recRight,
+        offsetBottomPx: c.recBottom,
+        sizePx: c.recSize,
+        anchor: "BOTTOM_RIGHT",
+        pivot: [1, 0]
+      },
+      thumbnailStrip: {
+        id: "comp_thumb_strip",
+        type: "ThumbnailStrip",
+        itemCount: outfitItems.length,
+        heightPx: c.thumbH + (c.stripPadV * 2),
+        padding: {
+          left: c.stripPadH,
+          right: c.stripPadH,
+          top: c.stripPadV,
+          bottom: c.stripPadV
+        },
+        backgroundColor: c.stripBg,
+        anchor: "BOTTOM_CENTER",
+        pivot: [0.5, 0]
+      },
+      thumbnailItem: {
+        id: "comp_thumb_item",
+        type: "ThumbnailItem",
+        widthPx: c.thumbW,
+        heightPx: c.thumbH,
+        widthPercent: parseFloat((c.thumbW / c.refW * 100).toFixed(2)),
+        heightPercent: parseFloat((c.thumbH / c.refH * 100).toFixed(2)),
+        gapPx: c.thumbGap,
+        cornerRadiusPx: c.thumbR,
+        borderWidthPx: c.selBorder,
+        selectedColor: c.selColor
+      },
+      thumbnailCharacter: {
+        id: "comp_thumb_char",
+        type: "ThumbnailCharacter",
+        fit: c.imgFit,
+        scalePercent: c.imgScale,
+        preserveAspect: (c.imgFit === 'contain'),
+        horizontalAlign: "center",
+        verticalAlign: "bottom",
+        offsetYPx: c.imgOffsetY
+      },
+      bottomNav: {
+        id: "comp_bottom_nav",
+        type: "BottomNavigation",
+        heightPx: c.navH,
+        safeAreaBottomInset: c.safeBottom,
+        anchor: "BOTTOM_STRETCH"
+      }
+    }
+  };
+
+  const box = document.getElementById('jsonCodeBox');
+  if (box) box.textContent = JSON.stringify(spec, null, 2);
+  const idLabel = document.getElementById('jsonSpecIdLabel');
+  if (idLabel) idLabel.textContent = `Spec: ${currentSpecId}`;
+  return spec;
+}
+
+// ── 16. Codex Handoff Prompt 생성기 ───────────────
+function generateCodexPrompt() {
+  const c = currentConfig;
+  const currentOutfit = outfitItems[appState.selectedOutfitIndex] || outfitItems[0];
+  const prompt = `# TODAYPICK HOME_UI IMPLEMENTATION (v2)
+
+STATUS:
+${isApproved ? 'APPROVED' : 'DRAFT'}
+
+SPEC:
+${currentSpecId}
+
+PROJECT:
+C:\\c\\TodayPick
+
+SCREEN:
+${appState.currentScreen}
+
+SELECTED REAL OUTFIT:
+ID: ${currentOutfit.id}
+File: ${currentOutfit.src}
+Title: ${currentOutfit.koreanTitle} (${currentOutfit.name})
+
+Implement the approved Web UI specification
+in the actual Unity project.
+
+IMPORTANT:
+
+Read the actual Unity structure first.
+
+Do not blindly paste generated reference C#.
+
+Map the approved spec to the actual:
+
+Scenes
+Prefabs
+RectTransforms
+CanvasScaler
+UI scripts
+
+Do not modify unrelated functionality.
+
+REFERENCE RESOLUTION:
+${c.refW}x${c.refH} (Safe Area: Top ${c.safeTop}px, Bottom ${c.safeBottom}px)
+
+APPROVED REAL IMAGE GALLERY PARAMETERS:
+
+1. MAIN OUTFIT IMAGE AREA:
+- Asset: ${currentOutfit.src}
+- Fit Mode: ${c.imgFit} (Image.preserveAspect = ${c.imgFit === 'contain'})
+- Alignment: Center-Bottom (pivot = Vector2(0.5, 0))
+- Scale: ${c.mainScale}% (Full-body visible head-to-toe)
+- Position Offset: Y ${c.mainOffsetY}px
+
+2. HORIZONTAL THUMBNAIL STRIP:
+- Component: ScrollRect (Horizontal only) + HorizontalLayoutGroup
+- Total Outfit Assets: ${outfitItems.length} items
+- Item Dimensions: ${c.thumbW}x${c.thumbH}px (W: ${(c.thumbW/c.refW*100).toFixed(2)}%, H: ${(c.thumbH/c.refH*100).toFixed(2)}%)
+- Spacing Gap: ${c.thumbGap}px, Corner Radius: ${c.thumbR}px
+- Padding: L${c.stripPadH} R${c.stripPadH} T${c.stripPadV} B${c.stripPadV}
+- Selection Outline: ${c.selBorder}px (${c.selColor})
+- Image Asset: Shares exact same source as Main Image (object-fit: contain)
+
+3. HEADER & TABS:
+- Greeting Text: "${c.greetingText}" (Size: ${c.headerFontSize}px)
+- Character Tab: (${c.charTabX}px, ${c.charTabY}px)
+- Price Tab: (${c.priceTabX}px, ${c.priceTabY}px)
+
+4. FLOATING BUTTONS & NAV:
+- Mode Button: (${c.modeBtnX}px, ${c.modeBtnY}px)
+- Side Button Group: Right -${c.sideRight}px, Top ${c.sideY}px, Size ${c.sideSize}px
+- Recommend Button: Right -${c.recRight}px, Bottom ${c.recBottom}px, Size ${c.recSize}px
+- Bottom Navigation: Height ${c.navH}px (Safe Area: ${c.safeBottom}px)
+
+After implementation:
+
+Unity Editor Preview
+→ User Review
+
+DO NOT create Release APK.
+DO NOT upload Drive.
+DO NOT send Telegram.
+
+Wait for user approval.`;
+
+  const box = document.getElementById('codexPromptBox');
+  if (box) box.textContent = prompt;
+}
+
+// ── 17. Diff 요약 생성기 ─────────────────────────
+function generateDiffSummary() {
+  const c = currentConfig;
+  const b = BASELINE_HOME_UI;
+
+  const diffs = [];
+  if (b.thumbW !== c.thumbW || b.thumbH !== c.thumbH) {
+    diffs.push({ name: 'Thumbnail size', before: `${b.thumbW}×${b.thumbH}`, after: `${c.thumbW}×${c.thumbH}` });
+  }
+  if (b.imgFit !== c.imgFit) {
+    diffs.push({ name: 'Character fit', before: b.imgFit, after: c.imgFit });
+  }
+  if (b.thumbGap !== c.thumbGap) {
+    diffs.push({ name: 'Thumbnail gap', before: `${b.thumbGap}px`, after: `${c.thumbGap}px` });
+  }
+  if (b.stripPadV !== c.stripPadV) {
+    diffs.push({ name: 'Bottom padding', before: `${b.stripPadV}px`, after: `${c.stripPadV}px` });
+  }
+  if (b.stripPadH !== c.stripPadH) {
+    diffs.push({ name: 'Horizontal padding', before: `${b.stripPadH}px`, after: `${c.stripPadH}px` });
+  }
+  if (b.thumbR !== c.thumbR) {
+    diffs.push({ name: 'Corner radius', before: `${b.thumbR}px`, after: `${c.thumbR}px` });
+  }
+  if (b.selColor !== c.selColor) {
+    diffs.push({ name: 'Selected color', before: b.selColor, after: c.selColor });
+  }
+
+  let cardHtml = '';
+  let textSummary = `HOME_UI CHANGE SUMMARY\n\n`;
+
+  if (diffs.length === 0) {
+    cardHtml = '<div style="color:var(--text-muted);font-size:11px;">변경 사항 없음 (Baseline과 동일)</div>';
+    textSummary += `- No changes from baseline\n`;
+  } else {
+    diffs.forEach(d => {
+      cardHtml += `
+        <div class="diff-item">
+          <span class="diff-label">${d.name}</span>
+          <div>
+            <span class="diff-val-before">${d.before}</span>
+            <span class="diff-val-after">${d.after}</span>
+          </div>
+        </div>
+      `;
+      textSummary += `- ${d.name}: ${d.before} → ${d.after}\n`;
+    });
+  }
+
+  const card = document.getElementById('diffSummaryContainer');
+  if (card) card.innerHTML = cardHtml;
+  const textBox = document.getElementById('diffTextBox');
+  if (textBox) textBox.textContent = textSummary;
+}
+
+// ── 18. 프리셋 적용 ──────────────────────────────
+function applyPreset(presetName) {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  if (presetName === 'CURRENT_APP') document.getElementById('presetCurrent').classList.add('active');
+  else if (presetName === 'FULL_BODY_THUMBNAILS') document.getElementById('presetFullbody').classList.add('active');
+  else if (presetName === 'COMPACT') document.getElementById('presetCompact').classList.add('active');
+  else if (presetName === 'LARGE_THUMBNAILS') document.getElementById('presetLarge').classList.add('active');
+
+  if (HOME_UI_PRESETS[presetName]) {
+    Object.assign(currentConfig, HOME_UI_PRESETS[presetName]);
+    Object.keys(HOME_UI_PRESETS[presetName]).forEach(k => {
+      const el = document.getElementById(k);
+      const numEl = document.getElementById(k + 'Num');
+      if (el && el.type === 'checkbox') el.checked = HOME_UI_PRESETS[presetName][k];
+      else if (el) el.value = HOME_UI_PRESETS[presetName][k];
+      if (numEl) numEl.value = HOME_UI_PRESETS[presetName][k];
+    });
+    handleUserModification();
+    update();
+  }
+}
+
+// ── 19. 섹션 리셋 & 전체 리셋 ────────────────────
+function resetSection(e, sectionKey) {
+  if (e) e.stopPropagation();
+  const defs = HOME_UI_PRESETS.FULL_BODY_THUMBNAILS;
+  const sectionFieldMap = {
+    screen: ['refW', 'refH', 'safeTop', 'safeBottom'],
+    header: ['greetingText', 'headerFontSize'],
+    modeTabs: ['charTabX', 'charTabY', 'priceTabX', 'priceTabY', 'tabRadius'],
+    mainChar: ['mainScale', 'mainOffsetY', 'mainBg'],
+    charMode: ['modeBtnX', 'modeBtnY'],
+    sideBtns: ['sideY', 'sideRight', 'sideSize', 'showSaveBtn', 'showSettingsBtn', 'showPlayBtn'],
+    recBtn: ['recRight', 'recBottom', 'recSize'],
+    strip: ['stripPadV', 'stripPadH', 'stripBg'],
+    thumbItem: ['thumbW', 'thumbH', 'thumbR', 'thumbGap', 'selColor', 'selBorder'],
+    charImg: ['imgFit', 'imgScale', 'imgOffsetY'],
+    nav: ['navH']
+  };
+
+  const fields = sectionFieldMap[sectionKey];
+  if (fields) {
+    fields.forEach(k => {
+      currentConfig[k] = defs[k];
+      const el = document.getElementById(k);
+      const numEl = document.getElementById(k + 'Num');
+      if (el && el.type === 'checkbox') el.checked = defs[k];
+      else if (el) el.value = defs[k];
+      if (numEl) numEl.value = defs[k];
+    });
+    handleUserModification();
+    update();
+  }
+}
+
+function resetAll() {
+  applyPreset('FULL_BODY_THUMBNAILS');
+  appState.selectedOutfitIndex = 0;
+  appState.selectedOutfitId = outfitItems[0].id;
+  persistAppState();
+
+  specVersionMajor = 2;
+  isApproved = false;
+  approvedTimestamp = null;
+  currentSpecId = 'HOME_UI_V002';
+
+  const badge = document.getElementById('approvalBadge');
+  const vTag = document.getElementById('specVersionBadge');
+  const card = document.getElementById('approvalCard');
+  const btn = document.getElementById('approveBtn');
+  if (badge) {
+    badge.textContent = 'DRAFT (미승인)';
+    badge.className = 'approval-status-badge draft';
+  }
+  if (vTag) vTag.textContent = 'HOME_UI_V002 (DRAFT)';
+  if (card) card.classList.remove('approved');
+  if (btn) {
+    btn.textContent = '✓ UI 레이아웃 승인';
+    btn.disabled = false;
+  }
+  update();
+}
+
+// ── 20. Before / After 비교 토글 ─────────────────
+function toggleCompare() {
+  compareMode = !compareMode;
+  const beforeWrapper = document.getElementById('beforePhoneWrapper');
+  const toggleBtn = document.getElementById('compareToggleBtn');
+
+  if (beforeWrapper) {
+    beforeWrapper.style.display = compareMode ? 'flex' : 'none';
+  }
+  if (toggleBtn) {
+    toggleBtn.textContent = compareMode ? '✕ 단일 뷰로 돌아가기' : '⇄ Before / After 비교 모드';
+    toggleBtn.className = compareMode ? 'btn-sm btn-green' : 'btn-sm btn-purple';
+  }
+}
+
+// ── 21. 탭 전환 ──────────────────────────────────
+function switchOutputTab(tab) {
+  document.querySelectorAll('.output-tab').forEach((el, idx) => {
+    const tabs = ['unity', 'json', 'codex', 'diff'];
+    el.classList.toggle('active', tabs[idx] === tab);
+  });
+  document.getElementById('outputTabUnity').style.display = (tab === 'unity') ? 'flex' : 'none';
+  document.getElementById('outputTabJson').style.display = (tab === 'json') ? 'flex' : 'none';
+  document.getElementById('outputTabCodex').style.display = (tab === 'codex') ? 'flex' : 'none';
+  document.getElementById('outputTabDiff').style.display = (tab === 'diff') ? 'flex' : 'none';
+}
+
+function toggleSection(headerEl) {
+  const section = headerEl.parentElement;
+  section.classList.toggle('collapsed');
+}
+
+// ── 22. 클립보드 복사 & 파일 다운로드 ────────────
+function copyText(elementId, btnId) {
+  const el = document.getElementById(elementId);
+  const btn = document.getElementById(btnId);
+  if (!el || !btn) return;
+
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ 복사 완료!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    btn.textContent = '✓ 복사 완료!';
+    setTimeout(() => { btn.textContent = '📋 복사'; }, 2000);
+  });
+}
+
+function downloadText(elementId, filename) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const text = el.textContent;
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function downloadJsonSpec() {
+  const spec = generateJsonSpec();
+  const blob = new Blob([JSON.stringify(spec, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${currentSpecId.toLowerCase()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ── 23. 초기화 실행 ──────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  setupDraggables();
+  applyPreset('FULL_BODY_THUMBNAILS');
+  update();
+});
+</script>
+</body>
+</html>
